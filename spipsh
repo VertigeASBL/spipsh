@@ -1,0 +1,27 @@
+#!/usr/bin/fish
+
+# Contrôle SPIP à la ligne de commande, un peu comme drush pour Drupal
+
+switch $argv[1]
+
+    case cc
+        echo Vide le cache
+        ls tmp | grep cache | xargs rm -rf
+
+        switch $argv[2]
+            case all
+                rm -rf local/*
+        end
+                
+    case '*'
+        echo "Contrôle SPIP à la ligne de commande. Doit être executé
+depuis la racine d'un site spip.
+
+Usage : spipsh [COMMAND]
+
+Commandes admises :
+  cc         Vide les caches du dossier tmp.
+  cc all     Vide les caches du dossier tmp, ainsi que le dossier
+               local.
+"
+end
