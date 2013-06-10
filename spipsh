@@ -2,6 +2,14 @@
 
 # Contrôle SPIP à la ligne de commande, un peu comme drush pour Drupal
 
+# TODO vérifier que l'on est bien à la racine d'un spip, et afficher un
+#      message d'erreur sinon.
+
+# TODO dans l'idéal le script devrait aussi fonctionner quand on est dans
+#      un sous-répertoire d'un spip. Il faudrait alors calculer le chemin
+#      de la racine, puis l'utiliser à la place des (pwd) qu'on utilise
+#      actuellement.
+
 switch $argv[1]
 
     case cc
