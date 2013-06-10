@@ -6,13 +6,13 @@ switch $argv[1]
 
     case cc
         echo Vide le cache
-        ls tmp | grep cache | xargs rm -rf
+        ls -d (pwd)/tmp/* | grep -E (pwd)"/tmp/.*cache" | xargs rm -rf
 
         switch $argv[2]
             case all
-                rm -rf local/*
+                rm -rf (pwd)/local/*
         end
-                
+
     case '*'
         echo "Contrôle SPIP à la ligne de commande. Doit être executé
 depuis la racine d'un site spip.
