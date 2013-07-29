@@ -21,6 +21,14 @@ switch $argv[1]
                 rm -rf (pwd)/local/*
         end
 
+    case init
+        mkdir lib
+        mkdir plugins
+        mkdir plugins/auto
+        mkdir plugins/fabrique_auto
+        mkdir squelettes
+        chmod a+rwX config IMG plugins/auto plugins/fabrique_auto lib local tmp
+
     case '*'
         echo "Contrôle SPIP à la ligne de commande. Doit être executé
 depuis la racine d'un site spip.
@@ -31,5 +39,7 @@ Commandes admises :
   cc         Vide les caches du dossier tmp.
   cc all     Vide les caches du dossier tmp, ainsi que le dossier
                local.
+  init       Crée les dossiers de plugins et de libraires, puis
+               donne les permissions adequates.
 "
 end
