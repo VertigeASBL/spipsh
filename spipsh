@@ -1,45 +1,50 @@
-#!/usr/bin/fish
+#!/bin/bash
 
-# Contrôle SPIP à la ligne de commande, un peu comme drush pour Drupal
+# Boîte à outils SPIP pour la ligne de commande.
 
-# TODO vérifier que l'on est bien à la racine d'un spip, et afficher un
-#      message d'erreur sinon.
+# Complète spip-cli, en ce s'occupant des choses hors de sa portée, comme les
+# permissions sur les dossiers.
 
-# TODO dans l'idéal le script devrait aussi fonctionner quand on est dans
-#      un sous-répertoire d'un spip. Il faudrait alors calculer le chemin
-#      de la racine, puis l'utiliser à la place des (pwd) qu'on utilise
-#      actuellement.
+# TODO vérifier que l'on est bien à la racine d'un spip, et afficher un message
+#      d'erreur sinon.
 
-switch $argv[1]
+# TODO dans l'idéal le script devrait aussi fonctionner quand on est dans un
+#      sous-répertoire d'un spip. Il faudrait alors calculer le chemin de la
+#      racine, puis l'utiliser à la place des (pwd) qu'on utilise actuellement.
 
-    case cc
-        echo Vide le cache
-        ls -d (pwd)/tmp/* | grep -E (pwd)"/tmp/.*cache" | xargs rm -rf
+SPIP_DIRECTORIES="config IMG local lib tmp plugins plugins/auto plugins/fabrique_auto squelettes"
 
-        switch $argv[2]
-            case all
-                rm -rf (pwd)/local/*
-        end
+case $1 in
+    init)
+        for dir in $SPIP_DIRECTORIES
+        do
+            if [[ ! -d $dir ]]
+            then
+                echo "crée le dossier $dir";
+                mkdir $dir;
+            fi
+        done
+        echo "répare les permissions";
+        chmod a+rwX $SPIP_DIRECTORIES ;;
+    cc)
+        echo "vide le cache";
+        ls -d tmp/* | grep -E "tmp/.*cache" | xargs rm -rf;
 
-    case init
-        mkdir lib
-        mkdir plugins
-        mkdir plugins/auto
-        mkdir plugins/fabrique_auto
-        mkdir squelettes
-        chmod a+rwX config IMG plugins/auto plugins/fabrique_auto lib local tmp
-
-    case '*'
+        if [[ $2 == "all" ]] ; then
+            echo "vide le cache des vignettes";
+            rm -rf local/*
+        fi ;;
+    *)
         echo "Contrôle SPIP à la ligne de commande. Doit être executé
 depuis la racine d'un site spip.
 
 Usage : spipsh [COMMAND]
 
 Commandes admises :
-  cc         Vide les caches du dossier tmp.
+  cc         Vide les caches du dossier tmp, à la dure, sans passer par SPIP
   cc all     Vide les caches du dossier tmp, ainsi que le dossier
                local.
   init       Crée les dossiers de plugins et de libraires, puis
                donne les permissions adequates.
-"
-end
+" ;;
+esac
