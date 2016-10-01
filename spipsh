@@ -14,11 +14,32 @@
 
 SPIP_DIRECTORIES="config IMG local lib tmp plugins plugins/auto plugins/fabrique_auto squelettes"
 
-parse_connect () {
+usage_error () {
+    echo $1 1>&2;
+    exit 2;
+}
 
-    cat config/connect.php | grep spip_connect_db\
-        | sed -r "s/[^']*'([^']*)'/\1,/g" | sed 's/);//'\
-        | awk 'BEGIN { FS=","; } { print '$1' }'
+fatal_error () {
+    echo $1 1>&2;
+    exit 1;
+}
+
+check_env () {
+    if [[ ! -f "ecrire/inc_version.php" ]]
+    then
+        usage_error "Ce script doit s'exécuter à la racine d'un SPIP.";
+    fi
+}
+
+parse_connect () {
+    if [[ -f "config/connect.php" ]]
+    then
+        cat config/connect.php | grep spip_connect_db\
+            | sed -r "s/[^']*'([^']*)'/\1,/g" | sed 's/);//'\
+            | awk 'BEGIN { FS=","; } { print '$1' }'
+    else
+        fatal_error "Le fichier config/connect.php n'existe pas, est-ce que ce SPIP est bien installé ?";
+    fi
 }
 
 get_spip_info () {
@@ -45,6 +66,8 @@ get_spip_info () {
     esac
 }
 
+check_env;
+
 case $1 in
 
     init)
@@ -57,30 +80,30 @@ case $1 in
             fi
         done
         echo "répare les permissions";
-        chmod a+rwX $SPIP_DIRECTORIES ;;
-
+        chmod a+rwX $SPIP_DIRECTORIES;
+        ;;
     cc)
         echo "vide le cache";
         ls -d tmp/* | grep -E "tmp/.*cache" | xargs rm -rf;
 
         if [[ $2 == "all" ]] ; then
             echo "vide le cache des vignettes";
-            rm -rf local/*
-        fi ;;
-
+            rm -rf local/*;
+        fi
+        ;;
     importdb)
         if [[ -z "$2" ]]
         then
-            echo "Vous devez spécifier un dump sql.gz à importer";
+            usage_error "Vous devez spécifier un dump sql.gz à importer";
         else
-            echo "Importe le dump $2..."
+            echo "Importe le dump $2...";
             zcat $2 | mysql --user `get_spip_info db_user` --password=`get_spip_info db_pwd`\
                             --host=`get_spip_info db_host` --port=`get_spip_info db_port`\
-                            `get_spip_info db_name`
-        fi ;;
-
+                            `get_spip_info db_name`;
+        fi
+        ;;
    *)
-        echo "Contrôle SPIP à la ligne de commande. Doit être executé
+        usage_error "Contrôle SPIP à la ligne de commande. Doit être executé
 depuis la racine d'un site spip.
 
 Usage : spipsh [COMMAND]
@@ -92,5 +115,6 @@ Commandes admises :
   init       Crée les dossiers de plugins et de libraires, puis
                donne les permissions adequates.
   importdb   Importe un dump au format sql.gz dans la base de données MySQL du SPIP.
-" ;;
+";
+        ;;
 esac
