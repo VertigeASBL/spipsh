@@ -63,6 +63,14 @@ get_spip_info () {
             parse_connect "\$5";;
         db_prefix)
             parse_connect "\$6";;
+        ftp_user)
+            git config --get git-ftp.user;;
+        ftp_pwd)
+            git config --get git-ftp.password;;
+        ftp_url)
+            git config --get git-ftp.url;;
+        *)
+            fatal_error "get_spip_info : paramètre invalide";;
     esac
 }
 
@@ -102,6 +110,15 @@ case $1 in
                             "$(get_spip_info db_name)";
         fi
         ;;
+    getimg)
+        if [[ ! -x $(which lftp) ]]
+        then
+            fatal_error "Le programme lftp ne semble pas installé.";
+        fi
+
+        lftp -u "$(get_spip_info ftp_user)","$(get_spip_info ftp_pwd)"\
+             "$(get_spip_info ftp_url)" -e "mirror IMG/ ./IMG/"
+        ;;
    *)
         usage_error "Contrôle SPIP à la ligne de commande. Doit être executé
 depuis la racine d'un site spip.
@@ -115,6 +132,7 @@ Commandes admises :
   init       Crée les dossiers de plugins et de libraires, puis
                donne les permissions adequates.
   importdb   Importe un dump au format sql.gz dans la base de données MySQL du SPIP.
+  getimg     Récupère le contenu du dossier IMG en production via lftp.
 ";
         ;;
 esac
