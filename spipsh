@@ -117,7 +117,7 @@ case $1 in
         fi
 
         lftp -u "$(get_spip_info ftp_user)","$(get_spip_info ftp_pwd)"\
-             "$(get_spip_info ftp_url)" -e "mirror IMG/ ./IMG/"
+             "$(get_spip_info ftp_url)" -e "mirror IMG/ ./IMG/ ; exit";
         ;;
    *)
         usage_error "Contrôle SPIP à la ligne de commande. Doit être executé
