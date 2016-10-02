@@ -5,9 +5,6 @@
 # Complète spip-cli, en ce s'occupant des choses hors de sa portée, comme les
 # permissions sur les dossiers.
 
-# TODO vérifier que l'on est bien à la racine d'un spip, et afficher un message
-#      d'erreur sinon.
-
 # TODO dans l'idéal le script devrait aussi fonctionner quand on est dans un
 #      sous-répertoire d'un spip. Il faudrait alors calculer le chemin de la
 #      racine, puis l'utiliser à la place des (pwd) qu'on utilise actuellement.
@@ -30,7 +27,7 @@ fatal_error () {
 check_env () {
     if [[ ! -f "ecrire/inc_version.php" ]]
     then
-        usage_error "Ce script doit s'exécuter à la racine d'un SPIP.";
+        usage_error "Ce script doit être exécuté depuis la racine d'un SPIP.";
     fi
 }
 
