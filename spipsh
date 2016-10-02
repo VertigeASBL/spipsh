@@ -110,6 +110,15 @@ case $1 in
                             "$(get_spip_info db_name)";
         fi
         ;;
+    ftp)
+        if [[ ! -x $(which lftp) ]]
+        then
+            fatal_error "Le programme lftp ne semble pas installé.";
+        fi
+
+        lftp -u "$(get_spip_info ftp_user)","$(get_spip_info ftp_pwd)"\
+             "$(get_spip_info ftp_url)";
+        ;;
     getimg)
         if [[ ! -x $(which lftp) ]]
         then
@@ -132,6 +141,7 @@ Commandes admises :
   init       Crée les dossiers de plugins et de libraires, puis
                donne les permissions adequates.
   importdb   Importe un dump au format sql.gz dans la base de données MySQL du SPIP.
+  ftp        Ouvre une connexion ftp vers le serveur via lftp.
   getimg     Récupère le contenu du dossier IMG en production via lftp.
 ";
         ;;
