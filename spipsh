@@ -12,7 +12,10 @@
 #      sous-répertoire d'un spip. Il faudrait alors calculer le chemin de la
 #      racine, puis l'utiliser à la place des (pwd) qu'on utilise actuellement.
 
-SPIP_DIRECTORIES="config IMG local lib tmp plugins plugins/auto plugins/fabrique_auto squelettes"
+# Les dossiers qui doivent exister pour que SPIP fonctionne sans embrouilles
+SPIP_NEEDED_DIRS="config IMG local lib tmp plugins plugins/auto plugins/fabrique_auto squelettes"
+# Les dossiers qui doivent être accessibles en écriture par Apache
+SPIP_WRITEABLE_DIRS="config IMG local lib tmp plugins/auto plugins/fabrique_auto"
 
 usage_error () {
     echo "$1" 1>&2;
@@ -71,7 +74,7 @@ check_env;
 case $1 in
 
     init)
-        for dir in $SPIP_DIRECTORIES
+        for dir in $SPIP_NEEDED_DIRS
         do
             if [[ ! -d $dir ]]
             then
@@ -80,7 +83,7 @@ case $1 in
             fi
         done
         echo "répare les permissions";
-        chmod a+rwX "$SPIP_DIRECTORIES";
+        chmod a+rwX "$SPIP_WRITEABLE_DIRS";
         ;;
     cc)
         echo "vide le cache";
