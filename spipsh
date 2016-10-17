@@ -113,6 +113,10 @@ case $1 in
         wget $MODELE_GITIGNORE     -O .gitignore;
         wget $MODELE_GITIGNORE_FTP -O .git-ftp-ignore;
 
+        cp htaccess.txt .htaccess
+
+        git init
+
         cd plugins/
 
         # Installer les plugins de plugin vertige
