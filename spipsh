@@ -37,7 +37,7 @@ check_env () {
 }
 
 check_program () {
-    if [[ ! -x $1 ]]
+    if [[ ! -x $(which "$1") ]]
     then
         fatal_error "Le programme $1 n'est pas installé.";
     fi
