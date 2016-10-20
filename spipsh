@@ -143,6 +143,9 @@ case $1 in
         ;;
     importdb)
         check_env;
+        check_program "zcat"
+        check_program "mysql"
+
         if [[ -z "$2" ]]
         then
             usage_error "Vous devez spécifier un dump sql.gz à importer";
@@ -155,6 +158,8 @@ case $1 in
         ;;
     dumpdb)
         check_env;
+        check_program "mysqldump"
+
         mysqldump --user "$(get_spip_info db_user)" --password="$(get_spip_info db_pwd)"\
                   --host="$(get_spip_info db_host)" --port="$(get_spip_info db_port)"\
                   "$(get_spip_info db_name)";
