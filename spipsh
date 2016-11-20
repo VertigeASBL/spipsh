@@ -150,6 +150,10 @@ case $1 in
         then
             usage_error "Vous devez spécifier un dump sql.gz à importer";
         else
+            echo "Vide la db...";
+            echo "DROP DATABASE $(get_spip_info db_name); CREATE DATABASE $(get_spip_info db_name);"\
+                | mysql --user "$(get_spip_info db_user)" --password="$(get_spip_info db_pwd)"\
+                        --host="$(get_spip_info db_host)" --port="$(get_spip_info db_port)";
             echo "Importe le dump $2...";
             zcat "$2" | mysql --user "$(get_spip_info db_user)" --password="$(get_spip_info db_pwd)"\
                             --host="$(get_spip_info db_host)" --port="$(get_spip_info db_port)"\
