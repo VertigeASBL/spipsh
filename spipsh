@@ -99,7 +99,7 @@ case $1 in
             fi
         done
         echo "répare les permissions";
-        chmod a+rwX $SPIP_WRITEABLE_DIRS;
+        chmod -R a+rwX $SPIP_WRITEABLE_DIRS;
         ;;
     init_vertige)
         check_env;
