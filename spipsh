@@ -168,6 +168,14 @@ case $1 in
                   --host="$(get_spip_info db_host)" --port="$(get_spip_info db_port)"\
                   "$(get_spip_info db_name)";
         ;;
+    mysql)
+        check_env;
+        check_program "mysql"
+
+        mysql --user "$(get_spip_info db_user)" --password="$(get_spip_info db_pwd)"\
+              --host="$(get_spip_info db_host)" --port="$(get_spip_info db_port)"\
+              "$(get_spip_info db_name)";
+        ;;
     ftp)
         check_env;
         check_program "lftp"
@@ -201,6 +209,7 @@ Commandes admises :
   init_vertige  Prépare un SPIP « à la vertige ».
   importdb   Importe un dump au format sql.gz dans la base de données MySQL du SPIP.
   dumpdb     Dump la db dans stdout.
+  mysql      Ouvre une connexion à mysql dans le terminal
   ftp        Ouvre une connexion ftp vers le serveur via lftp.
   getimg     Récupère le contenu du dossier IMG en production via lftp.
   get_loader Récupère la dernière version de spip_loader.php.
