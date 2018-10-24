@@ -48,6 +48,7 @@ parse_connect () {
     then
         grep spip_connect_db config/connect.php\
             | sed -r "s/[^']*'([^']*)'/\1,/g" | sed "s/);//"\
+            | head --lines=1\
             | awk "BEGIN { FS=\",\"; } { print $1 }";
     else
         fatal_error "Le fichier config/connect.php n'existe pas, est-ce que ce SPIP est bien installé ?";
