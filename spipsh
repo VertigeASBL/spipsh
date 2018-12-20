@@ -193,7 +193,12 @@ case $1 in
     get_loader)
         check_program "wget"
 
-        wget http://www.spip.net/spip-dev/INSTALL/spip_loader.php -O spip_loader.php
+        wget https://www.spip.net/spip-dev/INSTALL/spip_loader.php -O spip_loader.php
+        ;;
+    get_ecran_secu)
+        check_program "wget"
+
+        wget --output-document=config/ecran_securite.php https://zone.spip.org/trac/spip-zone/browser/_core_/securite/ecran_securite.php?format=txt
         ;;
    *)
         usage_error "Contrôle SPIP à la ligne de commande. Doit être executé
@@ -202,18 +207,19 @@ depuis la racine d'un site spip.
 Usage : spipsh [COMMAND]
 
 Commandes admises :
-  cc         Vide les caches du dossier tmp, à la dure, sans passer par SPIP
-  cc all     Vide les caches du dossier tmp, ainsi que le dossier
-               local.
-  init       Crée les dossiers de plugins et de libraires, puis
-               donne les permissions adequates.
-  init_vertige  Prépare un SPIP « à la vertige ».
-  importdb   Importe un dump au format sql.gz dans la base de données MySQL du SPIP.
-  dumpdb     Dump la db dans stdout.
-  mysql      Ouvre une connexion à mysql dans le terminal
-  ftp        Ouvre une connexion ftp vers le serveur via lftp.
-  getimg     Récupère le contenu du dossier IMG en production via lftp.
-  get_loader Récupère la dernière version de spip_loader.php.
+  cc              Vide les caches du dossier tmp, à la dure, sans passer par SPIP
+  cc all          Vide les caches du dossier tmp, ainsi que le dossier local.
+  init            Crée les dossiers de plugins et de libraires, puis donne
+                    les permissions adequates.
+  init_vertige    Prépare un SPIP « à la vertige ».
+  importdb        Importe un dump au format sql.gz dans la base de données MySQL
+                    du SPIP.
+  dumpdb          Dump la db dans stdout.
+  mysql           Ouvre une connexion à mysql dans le terminal
+  ftp             Ouvre une connexion ftp vers le serveur via lftp.
+  getimg          Récupère le contenu du dossier IMG en production via lftp.
+  get_loader      Récupère la dernière version de spip_loader.php.
+  get_ecran_secu  Récupère et installe la dernière version de l'écran de sécurité
 ";
         ;;
 esac
