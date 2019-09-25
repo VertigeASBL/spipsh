@@ -21,7 +21,7 @@ _spipsh_completion()
 
     # first argument : the command
     if [[ ${prev} == 'spipsh' ]] ; then
-        opts="init init_vertige cc importdb dumpdb mysql ftp getimg get_loader get_ecran_secu"
+        opts="init cc importdb dumpdb mysql ftp getimg get_loader get_ecran_secu"
         COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
         return 0
     # complete some commands

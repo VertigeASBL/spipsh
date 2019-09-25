@@ -14,11 +14,6 @@ SPIP_NEEDED_DIRS="config IMG local lib tmp plugins plugins/auto plugins/fabrique
 # Les dossiers qui doivent être accessibles en écriture par Apache
 SPIP_WRITEABLE_DIRS="config IMG local lib tmp plugins/auto plugins/fabrique_auto"
 
-MODELE_GITIGNORE="https://gist.githubusercontent.com/phenix-factory/7134623/raw/edfa67dadab5956c292060404511bb14951a3b18/spip.gitignore"
-
-MODELE_GITIGNORE_FTP="https://gist.githubusercontent.com/phenix-factory/92c90bad7955e0e8e69e/raw/a711f8c67f1698681516b2493c0420bfda8e78ed/spip.git-ftp-ignore"
-
-
 usage_error () {
     echo "$1" 1>&2;
     exit 2;
@@ -102,36 +97,6 @@ case $1 in
         echo "répare les permissions";
         chmod -R a+rwX $SPIP_WRITEABLE_DIRS;
         ;;
-    init_vertige)
-        check_env;
-        check_program "wget";
-        check_program "svn";
-        check_program "git";
-        check_program "spip";
-
-        spipsh init;
-
-        wget $MODELE_GITIGNORE     -O .gitignore;
-        wget $MODELE_GITIGNORE_FTP -O .git-ftp-ignore;
-
-        cp htaccess.txt .htaccess
-
-        git init
-
-        cd plugins/
-
-        # Installer les plugins de plugin vertige
-        git clone git@github.com:VertigeASBL/setup_vertige.git
-        git clone git@github.com:VertigeASBL/dev_vertige.git
-
-        # Installer le plugin dev de SPIP
-        svn checkout svn://zone.spip.org/spip-zone/_core_/plugins/dev
-
-        # Activer le dépôt principal de SPIP
-        spip plugins:svp:depoter http://plugins.spip.net/depots/principal.xml
-
-        cd ..
-        ;;
     cc)
         check_env;
         echo "vide le cache";
@@ -211,7 +176,6 @@ Commandes admises :
   cc all          Vide les caches du dossier tmp, ainsi que le dossier local.
   init            Crée les dossiers de plugins et de libraires, puis donne
                     les permissions adequates.
-  init_vertige    Prépare un SPIP « à la vertige ».
   importdb        Importe un dump au format sql.gz dans la base de données MySQL
                     du SPIP.
   dumpdb          Dump la db dans stdout.
