@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 
 # Boîte à outils SPIP pour la ligne de commande.
 
