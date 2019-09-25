@@ -15,6 +15,16 @@ SPIP_NEEDED_DIRS="config IMG local lib tmp plugins plugins/auto plugins/fabrique
 # Les dossiers qui doivent être accessibles en écriture par Apache
 SPIP_WRITEABLE_DIRS="config IMG local lib tmp plugins/auto plugins/fabrique_auto"
 
+# charger des variables d'environnement dans un fichier .env
+if [ -r .env ]
+then
+    source .env
+elif [ -r .env.gpg ]
+then
+    eval "$(gpg -d .env.gpg 2> /dev/null)"
+fi
+
+
 usage_error () {
     echo "$1" 1>&2;
     exit 2;
