@@ -145,7 +145,7 @@ case $1 in
                   --host="$(get_spip_info db_host)" --port="$(get_spip_info db_port)"\
                   "$(get_spip_info db_name)";
         ;;
-    dump-prod-db)
+    dump-db-prod)
         check_env;
         check_program "ssh";
         check_program "gzip";
