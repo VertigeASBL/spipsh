@@ -49,6 +49,12 @@ check_program () {
     fi
 }
 
+ssh_do () {
+    check_program "ssh";
+
+    ssh "$ssh_user"@"$prod_host" "$1"
+}
+
 parse_connect () {
     if [[ -f "config/connect.php" ]]
     then
@@ -156,7 +162,7 @@ case $1 in
         mkdir -p backup-db/prod
         ssh -C "$ssh_user"@"$prod_host" \
             "mysqldump -u $db_prod_user -p$db_prod_pass --add-drop-table $db_prod_name" \
-            | gzip > "backup-db/prod/magique-prod-$now.sql.gz"
+            | gzip > "backup-db/prod/$site_slug-prod-$now.sql.gz"
         ;;
     mysql)
         check_env;
@@ -189,6 +195,19 @@ case $1 in
 
         wget --output-document=config/ecran_securite.php https://zone.spip.org/trac/spip-zone/browser/_core_/securite/ecran_securite.php?format=txt
         ;;
+    deploy)
+        echo "fetch the new code"
+        ssh_do "cd public && git fetch"
+
+        echo "take a snapshot of the database"
+        now=$(date '+%F-%R');
+        current_commit=$(ssh_do "cd public && git log -1 --format='%H'");
+        ssh_do "mkdir -p snapshots"
+        ssh_do "mysqldump -u $db_prod_user -p$db_prod_pass --add-drop-table $db_prod_name | gzip > snapshots/$site_slug-prod-$now-$current_commit.sql.gz"
+
+        echo "checkout the new code"
+        ssh_do "cd public && git pull"
+        ;;
    *)
         usage_error "Contrôle SPIP à la ligne de commande. Doit être executé
 depuis la racine d'un site spip.
@@ -209,6 +228,7 @@ Commandes admises :
   getimg          Récupère le contenu du dossier IMG en production via lftp.
   get_loader      Récupère la dernière version de spip_loader.php.
   get_ecran_secu  Récupère et installe la dernière version de l'écran de sécurité
+  deploy          Synchronise la production avec le dépôt git.
 ";
         ;;
 esac
