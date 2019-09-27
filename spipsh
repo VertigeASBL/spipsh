@@ -158,11 +158,11 @@ case $1 in
 
         echo "Importer la DB depuis $prod_host vers un dump local"
         now=$(date '+%F-%R');
-        # current_commit=$(ssh_do "cd public && git log -1 --format='%H'");
+        current_commit=$(ssh_do "cd public && git log -1 --format='%H'");
         mkdir -p backup-db/prod
         ssh -C "$ssh_user"@"$prod_host" \
             "mysqldump -u $db_prod_user -p$db_prod_pass --add-drop-table $db_prod_name" \
-            | gzip > "backup-db/prod/$site_slug-prod-$now.sql.gz"
+            | gzip > "backup-db/prod/$site_slug-prod-$now-$current_commit.sql.gz"
         ;;
     mysql)
         check_env;
