@@ -164,6 +164,12 @@ case $1 in
             "mysqldump -u $db_prod_user -p$db_prod_pass --add-drop-table $db_prod_name" \
             | gzip > "backup-db/prod/$site_slug-prod-$now-$current_commit.sql.gz"
         ;;
+    log-into-prod)
+        check_env;
+        check_program "ssh";
+
+        ssh "$ssh_user"@"$prod_host";
+        ;;
     mysql)
         check_env;
         check_program "mysql"
