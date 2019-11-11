@@ -126,6 +126,7 @@ case $cmd in
         echo "répare les permissions";
         chmod -R a+rwX $SPIP_WRITEABLE_DIRS;
         ;;
+
     cc)
         echo "vide le cache";
         rm -rf tmp/cache{,.php,.gz}
@@ -135,7 +136,20 @@ case $cmd in
             rm -rf local/*;
         fi
         ;;
-    importdb)
+
+    get_loader)
+        check_program "wget"
+
+        wget https://www.spip.net/spip-dev/INSTALL/spip_loader.php -O spip_loader.php
+        ;;
+
+    get_ecran_secu)
+        check_program "wget"
+
+        wget --output-document=config/ecran_securite.php https://zone.spip.org/trac/spip-zone/browser/_core_/securite/ecran_securite.php?format=txt
+        ;;
+
+    db-import)
         check_program "zcat"
         check_program "mysql"
 
@@ -149,12 +163,24 @@ case $cmd in
             zcat "$2" | mysql --user "$db_user" --password="$db_pwd" --host="$db_host" --port="$db_port" "$db_name";
         fi
         ;;
-    dumpdb)
+
+    db-dump)
         check_program "mysqldump"
 
         mysqldump --user "$db_user" --password="$db_pwd" --host="$db_host" --port="$db_port" "$db_name";
         ;;
-    dump-db-prod)
+
+    db-login)
+        check_program "mysql"
+
+        mysql --user "$db_user" --password="$db_pwd" --host="$db_host" --port="$db_port" "$db_name";
+        ;;
+
+    run-script)
+        . "./bin/$2";
+        ;;
+
+    prod-db-dump)
         check_program "ssh";
         check_program "gzip";
 
@@ -165,39 +191,25 @@ case $cmd in
         ssh -C "$ssh_user"@"$prod_host" "mysqldump -u $db_prod_user -p$db_prod_pass --add-drop-table $db_prod_name" \
             | gzip > "backup-db/prod/$site_slug-prod-$now-$current_commit.sql.gz"
         ;;
-    log-into-prod)
+
+    prod-ssh)
         check_program "ssh";
 
         ssh "$ssh_user"@"$prod_host";
         ;;
-    mysql)
-        check_program "mysql"
 
-        mysql --user "$db_user" --password="$db_pwd" --host="$db_host" --port="$db_port" "$db_name";
-        ;;
-    ftp)
+    prod-ftp)
         check_program "lftp"
 
         lftp -u "$ftp_user","$ftp_pwd" "$ftp_url";
         ;;
-    getimg)
+
+    prod-getimg)
         check_program "lftp"
 
         lftp -u "$ftp_user","$ftp_pwd" "$ftp_url" -e "mirror IMG/ ./IMG/ ; exit";
         ;;
-    get_loader)
-        check_program "wget"
 
-        wget https://www.spip.net/spip-dev/INSTALL/spip_loader.php -O spip_loader.php
-        ;;
-    get_ecran_secu)
-        check_program "wget"
-
-        wget --output-document=config/ecran_securite.php https://zone.spip.org/trac/spip-zone/browser/_core_/securite/ecran_securite.php?format=txt
-        ;;
-    run-script)
-        . "./bin/$2";
-        ;;
    *)
         usage_error "Contrôle SPIP à la ligne de commande. Doit être exécuté
 depuis la racine d'un site spip.
@@ -209,19 +221,18 @@ Commandes :
   cc all          Vide les caches du dossier tmp, ainsi que le dossier local.
   init            Crée les dossiers de plugins et de libraires, puis donne
                     les permissions adequates.
-  importdb        Importe un dump au format sql.gz dans la base de données MySQL
-                    du SPIP.
-  dumpdb          Dump la db dans stdout.
-  dump-db-prod    Dump la db de production dans le dossier backup-db/prod/
-  log-into-prod   Ouvre un shell sur le serveur de prod via ssh
-  mysql           Ouvre une connexion à mysql dans le terminal
-  ftp             Ouvre une connexion ftp vers le serveur via lftp.
-  getimg          Récupère le contenu du dossier IMG en production via lftp.
   get_loader      Récupère la dernière version de spip_loader.php.
   get_ecran_secu  Récupère et installe la dernière version de l'écran de sécurité
+  db-import       Importe un dump au format sql.gz dans la base de données MySQL.
+  db-dump         Dump la db dans stdout.
+  db-login        Ouvre une connexion à mysql dans le terminal
   run-script      Lance un script bash en lui passant les variables d'environnement
                     qui vont bien. On passe l'adresse du script relativement au
                     dossier bin/ situé à la racine du SPIP.
+  prod-db-dump    Dump la db de production dans le dossier backup-db/prod/
+  prod-ssh        Ouvre un shell sur le serveur de prod via ssh
+  prod-ftp        Ouvre une connexion ftp vers le serveur via lftp.
+  prod-getimg     Récupère le contenu du dossier IMG en production via lftp.
 ";
         ;;
 esac

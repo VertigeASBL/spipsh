@@ -21,13 +21,29 @@ _spipsh_completion()
 
     # first argument : the command
     if [[ ${prev} == 'spipsh' ]] ; then
-        opts="init cc importdb dumpdb dump-db-prod log-into-prog mysql ftp getimg get_loader get_ecran_secu run-script"
+        opts="\
+cc \
+init \
+get_loader \
+get_ecran_secu \
+db-import \
+db-dump \
+db-login \
+run-script \
+prod-db-dump \
+prod-ssh \
+prod-ftp \
+prod-getimg";
         COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
         return 0
     # complete some commands
     else
         case "${prev}" in
-            importdb)
+            cc)
+                COMPREPLY=( $(compgen -W "all" -- ${cur}) );
+                return 0;
+                ;;
+            db-import)
                 local running=$(find "."\
                                      -path "./${cur}*.sql.gz"\
                                      -type f\
