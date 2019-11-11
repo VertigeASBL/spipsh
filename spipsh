@@ -104,7 +104,8 @@ get_env () {
     fi;
 }
 
-cmd=$1;
+
+cmd=${1:-help};
 
 # charger le contexte
 if [[ $cmd != 'get_loader' ]]; then
