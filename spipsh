@@ -229,6 +229,7 @@ Commandes admises :
                     du SPIP.
   dumpdb          Dump la db dans stdout.
   dump-db-prod    Dump la db de production dans le dossier backup-db/prod/
+  log-into-prod   Ouvre un shell sur le serveur de prod via ssh
   mysql           Ouvre une connexion à mysql dans le terminal
   ftp             Ouvre une connexion ftp vers le serveur via lftp.
   getimg          Récupère le contenu du dossier IMG en production via lftp.
