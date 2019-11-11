@@ -21,7 +21,7 @@ _spipsh_completion()
 
     # first argument : the command
     if [[ ${prev} == 'spipsh' ]] ; then
-        opts="init cc importdb dumpdb dump-db-prod log-into-prog mysql ftp getimg get_loader get_ecran_secu deploy"
+        opts="init cc importdb dumpdb dump-db-prod log-into-prog mysql ftp getimg get_loader get_ecran_secu run-script deploy"
         COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
         return 0
     # complete some commands
@@ -29,6 +29,11 @@ _spipsh_completion()
         case "${prev}" in
             importdb)
                 local running=$({ ls ${cur}*.sql.gz & ls -d ${cur}*/ ; } 2> /dev/null)
+                COMPREPLY=( $(compgen -W "${running}" -- ${cur}) )
+                return 0
+                ;;
+            run-script)
+                local running=$( find $(dirname ${cur:-}.) -maxdepth 2 -path "*${cur}*" -executable -print 2> /dev/null | sed 's/^\.\///');
                 COMPREPLY=( $(compgen -W "${running}" -- ${cur}) )
                 return 0
                 ;;

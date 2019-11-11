@@ -195,6 +195,9 @@ case $cmd in
 
         wget --output-document=config/ecran_securite.php https://zone.spip.org/trac/spip-zone/browser/_core_/securite/ecran_securite.php?format=txt
         ;;
+    run-script)
+        . "$2";
+        ;;
     deploy)
         echo "fetch the new code"
         ssh_do "cd public && git fetch"
