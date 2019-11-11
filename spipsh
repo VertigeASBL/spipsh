@@ -6,10 +6,6 @@ set -euo pipefail
 # Complète spip-cli, en ce s'occupant des choses hors de sa portée, comme les
 # permissions sur les dossiers.
 
-# TODO dans l'idéal le script devrait aussi fonctionner quand on est dans un
-#      sous-répertoire d'un spip. Il faudrait alors calculer le chemin de la
-#      racine, puis l'utiliser à la place des (pwd) qu'on utilise actuellement.
-
 # Les dossiers qui doivent exister pour que SPIP fonctionne sans embrouilles
 SPIP_NEEDED_DIRS="config IMG local lib tmp plugins plugins/auto plugins/fabrique_auto squelettes"
 # Les dossiers qui doivent être accessibles en écriture par Apache
@@ -38,11 +34,37 @@ ssh_do () {
     ssh "$ssh_user"@"$prod_host" "$1"
 }
 
-check_env () {
-    if [[ ! -f "ecrire/inc_version.php" ]]
-    then
-        usage_error "Ce script doit être exécuté depuis la racine d'un SPIP.";
-    fi
+get_spip_root () {
+
+    spip_root='';
+
+    cwd=$( pwd );
+    while [[ $( pwd ) != '/' ]]; do
+        if [[ -f 'ecrire/inc_version.php' ]]; then
+            spip_root=$( pwd );
+            break;
+        fi
+        cd ..;
+    done;
+    cd "$cwd";
+
+    if [[ -z "$spip_root" ]]; then
+        fatal_error "ecrire/inc_version.php introuvable. Ce script doit être exécuté dans l'arborescence d'un site SPIP."
+    fi;
+
+    echo "$spip_root";
+}
+
+get_env () {
+
+    spip_root=$( get_spip_root );
+
+    # On se place à la racine du SPIP si c'est possible, on annule tout sinon.
+    if [[ -z "$spip_root" ]]; then
+        exit 1;
+    else
+        cd "$spip_root";
+    fi;
 
     # charger des variables d'environnement dans un fichier .env
     if [ -r .env ]; then
@@ -86,7 +108,7 @@ cmd=$1;
 
 # charger le contexte
 if [[ $cmd != 'get_loader' ]]; then
-    check_env;
+    get_env;
 fi;
 
 # exécuter la commande
