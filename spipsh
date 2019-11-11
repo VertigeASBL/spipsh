@@ -198,19 +198,6 @@ case $cmd in
     run-script)
         . "./bin/$2";
         ;;
-    deploy)
-        echo "fetch the new code"
-        ssh_do "cd public && git fetch"
-
-        echo "take a snapshot of the database"
-        now=$(date '+%F-%R');
-        current_commit=$(ssh_do "cd public && git log -1 --format='%H'");
-        ssh_do "mkdir -p snapshots"
-        ssh_do "mysqldump -u $db_prod_user -p$db_prod_pass --add-drop-table $db_prod_name | gzip > snapshots/$site_slug-prod-$now-$current_commit.sql.gz"
-
-        echo "checkout the new code"
-        ssh_do "cd public && git pull"
-        ;;
    *)
         usage_error "Contrôle SPIP à la ligne de commande. Doit être exécuté
 depuis la racine d'un site spip.
@@ -235,7 +222,6 @@ Commandes :
   run-script      Lance un script bash en lui passant les variables d'environnement
                     qui vont bien. On passe l'adresse du script relativement au
                     dossier bin/ situé à la racine du SPIP.
-  deploy          Synchronise la production avec le dépôt git. (fait un snapshot de la prod suivi par un git pull)
 ";
         ;;
 esac
