@@ -28,7 +28,11 @@ _spipsh_completion()
     else
         case "${prev}" in
             importdb)
-                local running=$({ ls ${cur}*.sql.gz & ls -d ${cur}*/ ; } 2> /dev/null)
+                local running=$(find "."\
+                                     -path "./${cur}*.sql.gz"\
+                                     -type f\
+                                     -print 2> /dev/null\
+                                    | sed 's/^\.\///');
                 COMPREPLY=( $(compgen -W "${running}" -- ${cur}) )
                 return 0
                 ;;
