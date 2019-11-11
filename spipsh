@@ -45,17 +45,14 @@ check_env () {
     fi
 
     # charger des variables d'environnement dans un fichier .env
-    if [ -r .env ]
-    then
+    if [ -r .env ]; then
         source .env
-    elif [ -r .env.gpg ]
-    then
+    elif [ -r .env.gpg ]; then
         eval "$(gpg -d .env.gpg 2> /dev/null)"
     fi
 
     # charger les accès à la DB depuis config/connect.php
-    if [[ -f "config/connect.php" ]]
-    then
+    if [[ -f "config/connect.php" ]]; then
         restore_ifs=$IFS;
         IFS=',';
 
@@ -98,8 +95,7 @@ case $cmd in
     init)
         for dir in $SPIP_NEEDED_DIRS
         do
-            if [[ ! -d $dir ]]
-            then
+            if [[ ! -d $dir ]]; then
                 echo "crée le dossier $dir";
                 mkdir "$dir";
             fi
@@ -120,8 +116,7 @@ case $cmd in
         check_program "zcat"
         check_program "mysql"
 
-        if [[ -z "$2" ]]
-        then
+        if [[ -z "$2" ]]; then
             usage_error "Vous devez spécifier un dump sql.gz à importer";
         else
             echo "Vide la db...";
