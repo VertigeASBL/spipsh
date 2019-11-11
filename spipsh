@@ -211,8 +211,8 @@ case $cmd in
         ;;
 
    *)
-        usage_error "Contrôle SPIP à la ligne de commande. Doit être exécuté
-depuis la racine d'un site spip.
+        usage_error "\
+Contrôle SPIP à la ligne de commande. Doit être exécuté depuis la racine d'un site spip.
 
 Usage : spipsh [COMMAND]
 
