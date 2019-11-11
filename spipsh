@@ -196,7 +196,7 @@ case $cmd in
         wget --output-document=config/ecran_securite.php https://zone.spip.org/trac/spip-zone/browser/_core_/securite/ecran_securite.php?format=txt
         ;;
     run-script)
-        . "$2";
+        . "./bin/$2";
         ;;
     deploy)
         echo "fetch the new code"
@@ -232,6 +232,9 @@ Commandes :
   getimg          Récupère le contenu du dossier IMG en production via lftp.
   get_loader      Récupère la dernière version de spip_loader.php.
   get_ecran_secu  Récupère et installe la dernière version de l'écran de sécurité
+  run-script      Lance un script bash en lui passant les variables d'environnement
+                    qui vont bien. On passe l'adresse du script relativement au
+                    dossier bin/ situé à la racine du SPIP.
   deploy          Synchronise la production avec le dépôt git. (fait un snapshot de la prod suivi par un git pull)
 ";
         ;;

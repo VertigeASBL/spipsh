@@ -33,7 +33,12 @@ _spipsh_completion()
                 return 0
                 ;;
             run-script)
-                local running=$( find $(dirname ${cur:-}.) -maxdepth 2 -path "*${cur}*" -executable -print 2> /dev/null | sed 's/^\.\///');
+                local running=$(find "./bin/"\
+                                     -path "./bin/${cur}*"\
+                                     -type f\
+                                     -executable\
+                                     -print 2> /dev/null\
+                                    | sed 's/^\.\/bin\///');
                 COMPREPLY=( $(compgen -W "${running}" -- ${cur}) )
                 return 0
                 ;;
