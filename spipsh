@@ -15,16 +15,6 @@ SPIP_NEEDED_DIRS="config IMG local lib tmp plugins plugins/auto plugins/fabrique
 # Les dossiers qui doivent être accessibles en écriture par Apache
 SPIP_WRITEABLE_DIRS="config IMG local lib tmp plugins/auto plugins/fabrique_auto"
 
-# charger des variables d'environnement dans un fichier .env
-if [ -r .env ]
-then
-    source .env
-elif [ -r .env.gpg ]
-then
-    eval "$(gpg -d .env.gpg 2> /dev/null)"
-fi
-
-
 usage_error () {
     echo "$1" 1>&2;
     exit 2;
@@ -33,13 +23,6 @@ usage_error () {
 fatal_error () {
     echo "$1" 1>&2;
     exit 1;
-}
-
-check_env () {
-    if [[ ! -f "ecrire/inc_version.php" ]]
-    then
-        usage_error "Ce script doit être exécuté depuis la racine d'un SPIP.";
-    fi
 }
 
 check_program () {
@@ -55,54 +38,64 @@ ssh_do () {
     ssh "$ssh_user"@"$prod_host" "$1"
 }
 
-parse_connect () {
+check_env () {
+    if [[ ! -f "ecrire/inc_version.php" ]]
+    then
+        usage_error "Ce script doit être exécuté depuis la racine d'un SPIP.";
+    fi
+
+    # charger des variables d'environnement dans un fichier .env
+    if [ -r .env ]
+    then
+        source .env
+    elif [ -r .env.gpg ]
+    then
+        eval "$(gpg -d .env.gpg 2> /dev/null)"
+    fi
+
+    # charger les accès à la DB depuis config/connect.php
     if [[ -f "config/connect.php" ]]
     then
-        grep spip_connect_db config/connect.php\
-            | sed -r "s/[^']*'([^']*)'/\1,/g" | sed "s/);//"\
-            | head --lines=1\
-            | awk "BEGIN { FS=\",\"; } { print $1 }";
+        restore_ifs=$IFS;
+        IFS=',';
+
+        read db_host db_port db_user db_pwd db_name _ db_prefix _ <<< \
+             $( grep spip_connect_db config/connect.php\
+                    | sed -E "s/[^']*'([^']*)'/\1,/g" | sed "s/);//"\
+                    | head --lines=1 );
+
+        IFS=$restore_ifs;
+
+        if [[ -z "$db_port" ]]; then
+            db_port=0; # use default
+        fi;
     else
         fatal_error "Le fichier config/connect.php n'existe pas, est-ce que ce SPIP est bien installé ?";
     fi
+
+    # charger les accès au ftp de prod depuis la config de git
+    if [[ -z ${ftp_user+x} ]]; then
+        ftp_user="$( git config --get git-ftp.user )";
+    fi;
+    if [[ -z ${ftp_pwd+x} ]]; then
+        ftp_pwd="$( git config --get git-ftp.password )";
+    fi;
+    if [[ -z ${ftp_url+x} ]]; then
+        ftp_url="$( git config --get git-ftp.url )";
+    fi;
 }
 
-get_spip_info () {
+cmd=$1;
 
-    case $1 in
-        db_host)
-            parse_connect "\$1";;
-        db_port)
-            port=$(parse_connect "\$2");
-            if [[ -z "$port" ]]
-            then
-                echo 0; # use default
-            else
-                echo "$port";
-            fi ;;
-        db_user)
-            parse_connect "\$3";;
-        db_pwd)
-            parse_connect "\$4";;
-        db_name)
-            parse_connect "\$5";;
-        db_prefix)
-            parse_connect "\$6";;
-        ftp_user)
-            git config --get git-ftp.user;;
-        ftp_pwd)
-            git config --get git-ftp.password;;
-        ftp_url)
-            git config --get git-ftp.url;;
-        *)
-            fatal_error "get_spip_info : paramètre invalide";;
-    esac
-}
+# charger le contexte
+if [[ $cmd != 'get_loader' ]]; then
+    check_env;
+fi;
 
-case $1 in
+# exécuter la commande
+case $cmd in
 
     init)
-        check_env;
         for dir in $SPIP_NEEDED_DIRS
         do
             if [[ ! -d $dir ]]
@@ -115,7 +108,6 @@ case $1 in
         chmod -R a+rwX $SPIP_WRITEABLE_DIRS;
         ;;
     cc)
-        check_env;
         echo "vide le cache";
         rm -rf tmp/cache{,.php,.gz}
 
@@ -125,7 +117,6 @@ case $1 in
         fi
         ;;
     importdb)
-        check_env;
         check_program "zcat"
         check_program "mysql"
 
@@ -134,25 +125,18 @@ case $1 in
             usage_error "Vous devez spécifier un dump sql.gz à importer";
         else
             echo "Vide la db...";
-            echo "DROP DATABASE $(get_spip_info db_name); CREATE DATABASE $(get_spip_info db_name);"\
-                | mysql --user "$(get_spip_info db_user)" --password="$(get_spip_info db_pwd)"\
-                        --host="$(get_spip_info db_host)" --port="$(get_spip_info db_port)";
+            echo "DROP DATABASE $db_name; CREATE DATABASE $db_name;"\
+                | mysql --user "$db_user" --password="$db_pwd" --host="$db_host" --port="$db_port";
             echo "Importe le dump $2...";
-            zcat "$2" | mysql --user "$(get_spip_info db_user)" --password="$(get_spip_info db_pwd)"\
-                            --host="$(get_spip_info db_host)" --port="$(get_spip_info db_port)"\
-                            "$(get_spip_info db_name)";
+            zcat "$2" | mysql --user "$db_user" --password="$db_pwd" --host="$db_host" --port="$db_port" "$db_name";
         fi
         ;;
     dumpdb)
-        check_env;
         check_program "mysqldump"
 
-        mysqldump --user "$(get_spip_info db_user)" --password="$(get_spip_info db_pwd)"\
-                  --host="$(get_spip_info db_host)" --port="$(get_spip_info db_port)"\
-                  "$(get_spip_info db_name)";
+        mysqldump --user "$db_user" --password="$db_pwd" --host="$db_host" --port="$db_port" "$db_name";
         ;;
     dump-db-prod)
-        check_env;
         check_program "ssh";
         check_program "gzip";
 
@@ -160,36 +144,28 @@ case $1 in
         now=$(date '+%F-%R');
         current_commit=$(ssh_do "cd public && git log -1 --format='%H'");
         mkdir -p backup-db/prod
-        ssh -C "$ssh_user"@"$prod_host" \
-            "mysqldump -u $db_prod_user -p$db_prod_pass --add-drop-table $db_prod_name" \
+        ssh -C "$ssh_user"@"$prod_host" "mysqldump -u $db_prod_user -p$db_prod_pass --add-drop-table $db_prod_name" \
             | gzip > "backup-db/prod/$site_slug-prod-$now-$current_commit.sql.gz"
         ;;
     log-into-prod)
-        check_env;
         check_program "ssh";
 
         ssh "$ssh_user"@"$prod_host";
         ;;
     mysql)
-        check_env;
         check_program "mysql"
 
-        mysql --user "$(get_spip_info db_user)" --password="$(get_spip_info db_pwd)"\
-              --host="$(get_spip_info db_host)" --port="$(get_spip_info db_port)"\
-              "$(get_spip_info db_name)";
+        mysql --user "$db_user" --password="$db_pwd" --host="$db_host" --port="$db_port" "$db_name";
         ;;
     ftp)
-        check_env;
         check_program "lftp"
 
-        lftp -u "$(get_spip_info ftp_user)","$(get_spip_info ftp_pwd)"\
-             "$(get_spip_info ftp_url)";
+        lftp -u "$ftp_user","$ftp_pwd" "$ftp_url";
         ;;
     getimg)
         check_program "lftp"
 
-        lftp -u "$(get_spip_info ftp_user)","$(get_spip_info ftp_pwd)"\
-             "$(get_spip_info ftp_url)" -e "mirror IMG/ ./IMG/ ; exit";
+        lftp -u "$ftp_user","$ftp_pwd" "$ftp_url" -e "mirror IMG/ ./IMG/ ; exit";
         ;;
     get_loader)
         check_program "wget"
@@ -215,12 +191,12 @@ case $1 in
         ssh_do "cd public && git pull"
         ;;
    *)
-        usage_error "Contrôle SPIP à la ligne de commande. Doit être executé
+        usage_error "Contrôle SPIP à la ligne de commande. Doit être exécuté
 depuis la racine d'un site spip.
 
 Usage : spipsh [COMMAND]
 
-Commandes admises :
+Commandes :
   cc              Vide les caches du dossier tmp, à la dure, sans passer par SPIP
   cc all          Vide les caches du dossier tmp, ainsi que le dossier local.
   init            Crée les dossiers de plugins et de libraires, puis donne
@@ -235,7 +211,7 @@ Commandes admises :
   getimg          Récupère le contenu du dossier IMG en production via lftp.
   get_loader      Récupère la dernière version de spip_loader.php.
   get_ecran_secu  Récupère et installe la dernière version de l'écran de sécurité
-  deploy          Synchronise la production avec le dépôt git.
+  deploy          Synchronise la production avec le dépôt git. (fait un snapshot de la prod suivi par un git pull)
 ";
         ;;
 esac
