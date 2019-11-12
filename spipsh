@@ -107,10 +107,29 @@ get_env () {
 
 cmd=${1:-help};
 
-# charger le contexte
-if [[ $cmd != 'get_loader' ]]; then
-    get_env;
-fi;
+
+env_commands=(
+    'init'
+    'cc'
+    # 'get_loader' # don't load the env for this command
+    'get_ecran_secu'
+    'db-import'
+    'db-dump'
+    'db-login'
+    'run-script'
+    'prod-db-dump'
+    'prod-ssh'
+    'prod-ftp'
+    'prod-getimg'
+);
+
+# charger le contexte si nécessaire
+for item in "${env_commands[@]}"; do
+    if [[ $cmd == "$item" ]]; then
+        get_env;
+    fi;
+done;
+
 
 # exécuter la commande
 case $cmd in
