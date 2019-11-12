@@ -219,8 +219,8 @@ Usage : spipsh [COMMAND]
 Commandes :
   cc              Vide les caches du dossier tmp, à la dure, sans passer par SPIP
   cc all          Vide les caches du dossier tmp, ainsi que le dossier local.
-  init            Crée les dossiers de plugins et de libraires, puis donne
-                    les permissions adequates.
+  init            Crée les dossiers de plugins et de libraires, puis donne les
+                    permissions adequates.
   get_loader      Récupère la dernière version de spip_loader.php.
   get_ecran_secu  Récupère et installe la dernière version de l'écran de sécurité
   db-import       Importe un dump au format sql.gz dans la base de données MySQL.
