@@ -79,13 +79,15 @@ get_env () {
 
         read db_host db_port db_user db_pwd db_name _ db_prefix _ <<< \
              $( grep spip_connect_db config/connect.php\
-                    | sed -E "s/[^']*'([^']*)'/\1,/g" | sed "s/);//"\
+                    | sed 's/^spip_connect_db(//'\
+                    | sed -E "s/[^']*'([^']*)'?/\1,/g"\
+                    | sed "s/);//"\
                     | head --lines=1 );
 
         IFS=$restore_ifs;
 
         if [[ -z "$db_port" ]]; then
-            db_port=0; # use default
+            db_port=3306; # use default
         fi;
     else
         fatal_error "Le fichier config/connect.php n'existe pas, est-ce que ce SPIP est bien installé ?";
