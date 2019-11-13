@@ -93,13 +93,13 @@ get_env () {
 
     # charger les accès au ftp de prod depuis la config de git
     if [[ -z ${ftp_user+x} ]]; then
-        ftp_user="$( git config --get git-ftp.user )";
+        ftp_user="$( git config --get git-ftp.user || echo '' )";
     fi;
     if [[ -z ${ftp_pwd+x} ]]; then
-        ftp_pwd="$( git config --get git-ftp.password )";
+        ftp_pwd="$( git config --get git-ftp.password || echo '' )";
     fi;
     if [[ -z ${ftp_url+x} ]]; then
-        ftp_url="$( git config --get git-ftp.url )";
+        ftp_url="$( git config --get git-ftp.url || echo '' )";
     fi;
 }
 
