@@ -74,17 +74,13 @@ get_env () {
 
     # charger les accès à la DB depuis config/connect.php
     if [[ -f "config/connect.php" ]]; then
-        restore_ifs=$IFS;
-        IFS=',';
 
-        read db_host db_port db_user db_pwd db_name _ db_prefix _ <<< \
+        IFS=',' read -r db_host db_port db_user db_pwd db_name _ db_prefix _ <<< \
              $( grep spip_connect_db config/connect.php\
                     | sed 's/^spip_connect_db(//'\
                     | sed -E "s/[^']*'([^']*)'?/\1,/g"\
                     | sed "s/);//"\
                     | head --lines=1 );
-
-        IFS=$restore_ifs;
 
         if [[ -z "$db_port" ]]; then
             db_port=3306; # use default
