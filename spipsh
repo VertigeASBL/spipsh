@@ -119,6 +119,7 @@ env_commands=(
     'prod-ssh'
     'prod-ftp'
     'prod-getimg'
+    'prod-tramp'
 );
 
 for item in "${env_commands[@]}"; do
@@ -230,6 +231,11 @@ case $cmd in
         lftp -u "$ftp_user","$ftp_pwd" "$ftp_url" -e "mirror IMG/ ./IMG/ ; exit";
         ;;
 
+    prod-tramp)
+        check_program "emacs"
+
+        emacsclient --eval "(find-file \"/ssh:$ssh_user@$prod_host:.\")"
+        ;;
    *)
         usage_error "\
 Contrôle SPIP à la ligne de commande. Doit être exécuté depuis la racine d'un site spip.
@@ -253,6 +259,7 @@ Commandes :
   prod-ssh        Ouvre un shell sur le serveur de prod via ssh
   prod-ftp        Ouvre une connexion ftp vers le serveur via lftp.
   prod-getimg     Récupère le contenu du dossier IMG en production via lftp.
+  prod-tramp      Ouvrir le dossier racine de la prod dans emacs.
 ";
         ;;
 esac

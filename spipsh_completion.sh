@@ -33,7 +33,8 @@ run-script \
 prod-db-dump \
 prod-ssh \
 prod-ftp \
-prod-getimg";
+prod-getimg\
+prod-tramp";
         COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
         return 0
     # complete some commands
