@@ -62,7 +62,7 @@ get_env () {
     if [[ -z "$spip_root" ]]; then
         exit 1;
     else
-        cd "$spip_root";
+        cd "$spip_root" || exit 1;
     fi;
 
     # charger des variables d'environnement dans un fichier .env
