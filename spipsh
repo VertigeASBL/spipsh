@@ -147,7 +147,7 @@ case $cmd in
         echo "vide le cache";
         rm -rf tmp/cache{,.php,.gz}
 
-        if [[ $2 == "all" ]] ; then
+        if [[ -n ${2+x} ]] && [[ $2 == "all" ]] ; then
             echo "vide le cache des vignettes";
             rm -rf local/*;
         fi
