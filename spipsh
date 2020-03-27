@@ -111,6 +111,7 @@ env_commands=(
     'cc'
     # 'get_loader' # don't load the env for this command
     'get_ecran_secu'
+    'db-query'
     'db-import'
     'db-dump'
     'db-login'
@@ -163,6 +164,12 @@ case $cmd in
         check_program "wget"
 
         wget --output-document=config/ecran_securite.php https://zone.spip.org/trac/spip-zone/browser/_core_/securite/ecran_securite.php?format=txt
+        ;;
+
+    db-query)
+        check_program "mysql"
+
+        mysql --execute="${2}" --user "$db_user" --password="$db_pwd" --host="$db_host" --port="$db_port" "$db_name"
         ;;
 
     db-import)
@@ -249,6 +256,7 @@ Commandes :
                     permissions adequates.
   get_loader      Récupère la dernière version de spip_loader.php.
   get_ecran_secu  Récupère et installe la dernière version de l'écran de sécurité
+  db-query        Exécute une commande MySQL.
   db-import       Importe un dump au format sql.gz dans la base de données MySQL.
   db-dump         Dump la db dans stdout.
   db-login        Ouvre une connexion à mysql dans le terminal

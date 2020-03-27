@@ -26,6 +26,7 @@ cc \
 init \
 get_loader \
 get_ecran_secu \
+db-query \
 db-import \
 db-dump \
 db-login \
