@@ -33,6 +33,17 @@ ssh_do () {
     ssh "$ssh_user"@"$prod_host" "$1"
 }
 
+remove_some_warnings() {
+
+    grep --no-messages --invert-match 'Using a password on the command line interface can be insecure.';
+}
+
+mysql_quiet () {
+    check_program "mysql";
+
+    mysql "$@" 2> >(remove_some_warnings >&2);
+}
+
 get_spip_root () {
 
     spip_root='';
@@ -167,36 +178,34 @@ case $cmd in
         ;;
 
     db-query)
-        check_program "mysql"
 
-        mysql --execute="${2}" --user "$db_user" --password="$db_pwd" --host="$db_host" --port="$db_port" "$db_name"
+        mysql_quiet --execute="${2}" --user "$db_user" --password="$db_pwd" --host="$db_host" --port="$db_port" "$db_name"
         ;;
 
     db-import)
         check_program "zcat"
-        check_program "mysql"
 
         if [[ -z "$2" ]]; then
             usage_error "Vous devez spécifier un dump sql.gz à importer";
         else
             echo "Vide la db...";
             echo "DROP DATABASE $db_name; CREATE DATABASE $db_name;"\
-                | mysql --user "$db_user" --password="$db_pwd" --host="$db_host" --port="$db_port";
+                | mysql_quiet --user "$db_user" --password="$db_pwd" --host="$db_host" --port="$db_port";
             echo "Importe le dump $2...";
-            (zcat "$2" || cat "$2") | mysql --user "$db_user" --password="$db_pwd" --host="$db_host" --port="$db_port" "$db_name";
+            (zcat "$2" || cat "$2") | mysql_quiet --user "$db_user" --password="$db_pwd" --host="$db_host" --port="$db_port" "$db_name";
         fi
         ;;
 
     db-dump)
         check_program "mysqldump"
 
-        mysqldump --user "$db_user" --password="$db_pwd" --host="$db_host" --port="$db_port" "$db_name";
+        mysqldump --user "$db_user" --password="$db_pwd" --host="$db_host" --port="$db_port" "$db_name" \
+            2> <(remove_some_warnings);
         ;;
 
     db-login)
-        check_program "mysql"
 
-        mysql --user "$db_user" --password="$db_pwd" --host="$db_host" --port="$db_port" "$db_name";
+        mysql_quiet --user "$db_user" --password="$db_pwd" --host="$db_host" --port="$db_port" "$db_name";
         ;;
 
     run-script)
@@ -216,7 +225,8 @@ case $cmd in
 
         current_commit=$(ssh_do "cd $prod_web_dir && git log -1 --format='%H'");
         mkdir -p backup-db/prod
-        ssh -C "$ssh_user"@"$prod_host" "mysqldump -h $db_prod_host -u $db_prod_user -p$db_prod_pass --add-drop-table $db_prod_name" \
+        ssh -C "$ssh_user"@"$prod_host" "mysqldump -h $db_prod_host -u $db_prod_user -p$db_prod_pass --add-drop-table $db_prod_name \
+            2> <(grep -v 'Using a password on the command line interface can be insecure.' >&2);" \
             | gzip > "backup-db/prod/$site_slug-prod-$now-$current_commit.sql.gz"
         ;;
 
