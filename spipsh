@@ -12,13 +12,27 @@ SPIP_NEEDED_DIRS="config IMG local lib tmp plugins plugins/auto plugins/fabrique
 SPIP_WRITEABLE_DIRS="config IMG local lib tmp plugins/auto plugins/fabrique_auto"
 
 usage_error () {
-    echo "$1" 1>&2;
+    # texte en rouge
+    echo "$(tput setaf 3)$1$(tput sgr 0)" 1>&2;
     exit 2;
 }
 
 fatal_error () {
-    echo "$1" 1>&2;
+    # texte en jaune
+    echo "$(tput setaf 1)$1$(tput sgr 0)" 1>&2;
     exit 1;
+}
+
+do_and_tell () {
+    # la description en vert s'il y en a une
+    if [[ -n "$1" ]]; then
+        echo "$(tput setaf 2)# $1$(tput sgr 0)"
+    fi
+    shift
+    # la commande en bleu
+    echo "$(tput setaf 4)> $*$(tput sgr 0)"
+    # exécuter la commande
+    eval "$*"
 }
 
 check_program () {
@@ -38,11 +52,19 @@ remove_some_warnings() {
     grep --no-messages --invert-match 'Using a password on the command line interface can be insecure.';
 }
 
+# une version de la commande mysql qui ne fait pas de warnings quand on passe le
+# mot de passe en option.
 mysql_quiet () {
     check_program "mysql";
 
     mysql "$@" 2> >(remove_some_warnings >&2);
 }
+
+# une version de zcat qui sait aussi lire le fichier non-compressés.
+zcat_or_cat () {
+    ( zcat "$1" 2> /dev/null || cat "$1" )
+}
+
 
 get_spip_root () {
 
@@ -147,21 +169,21 @@ case $cmd in
     init)
         for dir in $SPIP_NEEDED_DIRS; do
             if [[ ! -d $dir ]]; then
-                echo "crée le dossier $dir";
-                mkdir "$dir";
+                do_and_tell "crée le dossier $dir"\
+                            mkdir "$dir";
             fi
         done
-        echo "répare les permissions";
-        chmod -R a+rwX $SPIP_WRITEABLE_DIRS;
+        do_and_tell "répare les permissions"\
+                    chmod -R a+rwX $SPIP_WRITEABLE_DIRS;
         ;;
 
     cc)
-        echo "vide le cache";
-        rm -rf tmp/cache{,.php,.gz}
+        do_and_tell "vide le cache"\
+                    rm -rf tmp/cache{,.php,.gz}
 
         if [[ -n ${2+x} ]] && [[ $2 == "all" ]] ; then
-            echo "vide le cache des vignettes";
-            rm -rf local/*;
+            do_and_tell "vide le cache des vignettes"\
+                        rm -rf local/*;
         fi
         ;;
 
@@ -179,7 +201,9 @@ case $cmd in
 
     db-query)
 
-        mysql_quiet --execute="${2}" --user "$db_user" --password="$db_pwd" --host="$db_host" --port="$db_port" "$db_name"
+        mysql_quiet --execute="${2}"\
+                    --user "$db_user" --password="$db_pwd"\
+                    --host="$db_host" --port="$db_port" "$db_name"
         ;;
 
     db-import)
@@ -188,11 +212,13 @@ case $cmd in
         if [[ -z "$2" ]]; then
             usage_error "Vous devez spécifier un dump sql.gz à importer";
         else
-            echo "Vide la db...";
-            echo "DROP DATABASE $db_name; CREATE DATABASE $db_name;"\
-                | mysql_quiet --user "$db_user" --password="$db_pwd" --host="$db_host" --port="$db_port";
-            echo "Importe le dump $2...";
-            (zcat "$2" || cat "$2") | mysql_quiet --user "$db_user" --password="$db_pwd" --host="$db_host" --port="$db_port" "$db_name";
+            do_and_tell "vide la db"\
+                        mysql_quiet --execute="\"DROP DATABASE $db_name; CREATE DATABASE $db_name;"\"\
+                        --user "$db_user" --password='"$db_pwd"'\
+                        --host="$db_host" --port="$db_port";
+            do_and_tell "importe le dump..."\
+                        zcat_or_cat "$2" \| mysql_quiet --user "$db_user" --password='"$db_pwd"'\
+                        --host="$db_host" --port="$db_port" "$db_name";
         fi
         ;;
 
@@ -216,18 +242,21 @@ case $cmd in
         check_program "ssh";
         check_program "gzip";
 
-        echo "Importer la DB depuis $prod_host vers un dump local"
-        now=$(date '+%F-%R');
-
         if [[ -z $prod_web_dir ]]; then
             prod_web_dir='public';
         fi;
 
-        current_commit=$(ssh_do "cd $prod_web_dir && git log -1 --format='%H'");
         mkdir -p backup-db/prod
-        ssh -C "$ssh_user"@"$prod_host" "mysqldump -h $db_prod_host -u $db_prod_user -p$db_prod_pass --add-drop-table $db_prod_name \
-            2> <(grep -v 'Using a password on the command line interface can be insecure.' >&2);" \
-            | gzip > "backup-db/prod/$site_slug-prod-$now-$current_commit.sql.gz"
+
+        now=$(date '+%F-%R');
+        current_commit=$(ssh_do "cd $prod_web_dir && git log -1 --format='%H'");
+        filename="backup-db/prod/$site_slug-prod-$now-$current_commit.sql.gz";
+
+        do_and_tell "Importer la DB de production dans un dump local"\
+                    ssh -C "$ssh_user"@"$prod_host"\
+                    "\"mysqldump -h $db_prod_host -u $db_prod_user -p$db_prod_pass --add-drop-table $db_prod_name \
+                     2> <(grep -v 'Using a password on the command line interface can be insecure.' >&2);\"" \
+                    \| gzip \> "$filename";
         ;;
 
     prod-ssh)
@@ -245,7 +274,8 @@ case $cmd in
     prod-getimg)
         check_program "lftp"
 
-        lftp -u "$ftp_user","$ftp_pwd" "$ftp_url" -e "mirror IMG/ ./IMG/ ; exit";
+        do_and_tell "rapatrier les images et documents du serveur de production"\
+                    lftp -u "$ftp_user",'"$ftp_pwd"' "$ftp_url" -e "mirror IMG/ ./IMG/ ; exit";
         ;;
 
     prod-tramp)
@@ -253,8 +283,9 @@ case $cmd in
 
         emacsclient --eval "(find-file \"/ssh:$ssh_user@$prod_host:.\")"
         ;;
-   *)
+    *)
         usage_error "\
+
 Contrôle SPIP à la ligne de commande. Doit être exécuté depuis la racine d'un site spip.
 
 Usage : spipsh [COMMAND]
