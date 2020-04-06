@@ -58,6 +58,9 @@ while [[ -n "${1+x}" ]]; do
             -l | --local-dir)
                 shift; local_dir="$1";
                 ;;
+            -c | --connect)
+                shift; connect="$1";
+                ;;
             *)
                 usage_error "option invalide : $1"
                 ;;
@@ -154,10 +157,10 @@ get_env () {
     fi
 
     # charger les accès à la DB depuis config/connect.php
-    if [[ -f "config/connect.php" ]]; then
+    if [[ -f "config/${connect:=connect}.php" ]]; then
 
         IFS=',' read -r db_host db_port db_user db_pwd db_name _ db_prefix _ <<< \
-             $( grep spip_connect_db config/connect.php\
+             $( grep spip_connect_db "config/$connect.php"\
                     | sed 's/^spip_connect_db(//'\
                     | sed -E "s/[^']*'([^']*)'?/\1,/g"\
                     | sed "s/);//"\
@@ -167,7 +170,7 @@ get_env () {
             db_port=3306; # use default
         fi;
     else
-        fatal_error "Le fichier config/connect.php n'existe pas, est-ce que ce SPIP est bien installé ?";
+        fatal_error "Le fichier config/$connect.php n'existe pas, est-ce que ce SPIP est bien installé ?";
     fi
 
     # charger les accès au ftp de prod depuis la config de git
@@ -369,6 +372,8 @@ Options :
                            uniquement pour la commande cc.
 
   --dry-run | -d           Ne pas exécuter les commandes, seulement les afficher.
+
+  --connect | -c STRING    Permet de choisir un fichier connect.php alternatif.
 
   --tmp-dir | -t STRING    Permet de choisir un répertoire tmp/ alternatif.
 
