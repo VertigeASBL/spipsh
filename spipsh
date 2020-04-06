@@ -27,6 +27,7 @@ if [[ -z "${1+x}" ]]; then
     cmd="help";
 fi
 
+spipsh_opts="";
 while [[ -n "${1+x}" ]]; do
     if [[ ! "$1" =~ ^- ]]; then
         if [[ -z ${cmd+x} ]]; then
@@ -45,6 +46,7 @@ while [[ -n "${1+x}" ]]; do
             esac
         fi
     else
+        spipsh_opts="$spipsh_opts $1";
         case $1 in
             -a | --all)
                 all=1;
@@ -54,12 +56,15 @@ while [[ -n "${1+x}" ]]; do
                 ;;
             -t | --tmp-dir)
                 shift; tmp_dir="$1";
+                spipsh_opts="$spipsh_opts $1";
                 ;;
             -l | --local-dir)
                 shift; local_dir="$1";
+                spipsh_opts="$spipsh_opts $1";
                 ;;
             -c | --connect)
                 shift; connect="$1";
+                spipsh_opts="$spipsh_opts $1";
                 ;;
             *)
                 usage_error "option invalide : $1"
