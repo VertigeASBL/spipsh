@@ -11,30 +11,6 @@ SPIP_NEEDED_DIRS="config IMG local lib tmp plugins plugins/auto plugins/fabrique
 # Les dossiers qui doivent être accessibles en écriture par Apache
 SPIP_WRITEABLE_DIRS="config IMG local lib tmp plugins/auto plugins/fabrique_auto"
 
-cmd=${1:-help};
-shift;
-
-while [[ "${1-x}" =~ ^- ]]; do
-    case $1 in
-        -a | --all)
-            all=1;
-            ;;
-        -d | --dry-run)
-            dry_run=1;
-            ;;
-        -t | --tmp-dir)
-            shift; tmp_dir="$1";
-            ;;
-        -l | --local-dir)
-            shift; local_dir="$1";
-            ;;
-        *)
-            usage_error "option invalide : $1"
-            ;;
-    esac
-    shift;
-done
-
 usage_error () {
     # texte en rouge
     echo "$(tput setaf 3)$1$(tput sgr 0)" 1>&2;
@@ -46,6 +22,49 @@ fatal_error () {
     echo "$(tput setaf 1)$1$(tput sgr 0)" 1>&2;
     exit 1;
 }
+
+if [[ -z "${1+x}" ]]; then
+    cmd="help";
+fi
+
+while [[ -n "${1+x}" ]]; do
+    if [[ ! "$1" =~ ^- ]]; then
+        if [[ -z ${cmd+x} ]]; then
+            cmd="$1";
+        else
+            case $cmd in
+                db-query)
+                    db_query="$1";
+                    ;;
+                db-import)
+                    db_dump="$1";
+                    ;;
+                run-script)
+                    script="$1";
+                    ;;
+            esac
+        fi
+    else
+        case $1 in
+            -a | --all)
+                all=1;
+                ;;
+            -d | --dry-run)
+                dry_run=1;
+                ;;
+            -t | --tmp-dir)
+                shift; tmp_dir="$1";
+                ;;
+            -l | --local-dir)
+                shift; local_dir="$1";
+                ;;
+            *)
+                usage_error "option invalide : $1"
+                ;;
+        esac
+    fi
+    shift;
+done
 
 do_and_tell () {
     # la description en vert s'il y en a une
@@ -224,8 +243,11 @@ case $cmd in
         ;;
 
     db-query)
+        if [[ -z "${db_query+x}" ]]; then
+            usage_error "Vous devez spécifier une commande à exécuter.";
+        fi
 
-        mysql_quiet --execute="${2}"\
+        mysql_quiet --execute="$db_query"\
                     --user "$db_user" --password="$db_pwd"\
                     --host="$db_host" --port="$db_port" "$db_name"
         ;;
@@ -233,7 +255,7 @@ case $cmd in
     db-import)
         check_program "zcat"
 
-        if [[ -z "$2" ]]; then
+        if [[ -z "${db_dump+x}" ]]; then
             usage_error "Vous devez spécifier un dump sql.gz à importer";
         else
             do_and_tell "vide la db"\
@@ -241,7 +263,7 @@ case $cmd in
                         --user "$db_user" --password='"$db_pwd"'\
                         --host="$db_host" --port="$db_port";
             do_and_tell "importe le dump..."\
-                        zcat_or_cat "$2" \| mysql_quiet --user "$db_user" --password='"$db_pwd"'\
+                        zcat_or_cat "$db_dump" \| mysql_quiet --user "$db_user" --password='"$db_pwd"'\
                         --host="$db_host" --port="$db_port" "$db_name";
         fi
         ;;
@@ -259,7 +281,11 @@ case $cmd in
         ;;
 
     run-script)
-        . "./bin/$2";
+        if [[ -z "${script+x}" ]]; then
+            usage_error "Vous devez spécifier le nom d'un script.";
+        else
+            . "./bin/$script";
+        fi
         ;;
 
     prod-db-dump)
