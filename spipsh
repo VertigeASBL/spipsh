@@ -19,6 +19,9 @@ while [[ "${1-x}" =~ ^- ]]; do
         -a | --all)
             all=1;
             ;;
+        -d | --dry-run)
+            dry_run=1;
+            ;;
         -t | --tmp-dir)
             shift; tmp_dir="$1";
             ;;
@@ -53,7 +56,9 @@ do_and_tell () {
     # la commande en bleu
     echo "$(tput setaf 4)> $*$(tput sgr 0)"
     # exécuter la commande
-    eval "$*"
+    if [[ ${dry_run:-0} -ne 1 ]]; then
+        eval "$*"
+    fi
 }
 
 check_program () {
@@ -333,6 +338,8 @@ Options :
 
   --all | -a               Permet de vider aussi le cache de vignettes. Valable
                            uniquement pour la commande cc.
+
+  --dry-run | -d           Ne pas exécuter les commandes, seulement les afficher.
 
   --tmp-dir | -t STRING    Permet de choisir un répertoire tmp/ alternatif.
 
