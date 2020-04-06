@@ -136,6 +136,7 @@ get_env () {
 
 
 cmd=${1:-help};
+shift;
 
 
 # charger le contexte si nécessaire
@@ -178,11 +179,23 @@ case $cmd in
         ;;
 
     cc)
+        while [[ "${1-x}" =~ ^- ]]; do
+            case $1 in
+                -a | --all)
+                    all=1;
+                    ;;
+                *)
+                    usage_error "option invalide : $1"
+                    ;;
+            esac
+            shift;
+        done
+
         do_and_tell "vide le cache"\
                     rm -rf tmp/{cache,plugin_xml_cache.gz,meta_cache.php,menu-rubriques-cache.txt} \&\&\
                     rm -rf local/{cache-css,cache-js}
 
-        if [[ -n ${2+x} ]] && [[ $2 == "all" ]] ; then
+        if [[ -n ${all+x} ]] ; then
             do_and_tell "vide le cache des vignettes"\
                         rm -rf local/*;
         fi
@@ -292,8 +305,8 @@ Contrôle SPIP à la ligne de commande. Doit être exécuté depuis la racine d'
 Usage : spipsh [COMMAND]
 
 Commandes :
-  cc              Vide les caches du dossier tmp, à la dure, sans passer par SPIP
-  cc all          Vide les caches du dossier tmp, ainsi que le dossier local.
+
+  cc              Vide les caches du dossier tmp, à la dure, sans passer par SPIP.
   init            Crée les dossiers de plugins et de libraires, puis donne les
                     permissions adequates.
   get_loader      Récupère la dernière version de spip_loader.php.
@@ -310,6 +323,12 @@ Commandes :
   prod-ftp        Ouvre une connexion ftp vers le serveur via lftp.
   prod-getimg     Récupère le contenu du dossier IMG en production via lftp.
   prod-tramp      Ouvrir le dossier racine de la prod dans emacs.
+
+Options :
+
+  --all | -a      Permet de vider aussi le cache de vignettes. Valable uniquement
+                  pour la commande cc.
+
 ";
         ;;
 esac
