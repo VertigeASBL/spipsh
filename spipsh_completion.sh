@@ -14,37 +14,44 @@
 
 _spipsh_completion()
 {
-    local cur prev opts
+    local cur opts cmds_array cmds cmd
     COMPREPLY=()
     cur="${COMP_WORDS[COMP_CWORD]}"
-    prev="${COMP_WORDS[COMP_CWORD-1]}"
+    opts="-a -d -c -t -l --all --dry-run --connect --tmp-dir --local-dir"
+    cmds_array=(
+        'cc'
+        'init'
+        'get_loader'
+        'get_ecran_secu'
+        'db-query'
+        'db-import'
+        'db-dump'
+        'db-login'
+        'run-script'
+        'prod-db-dump'
+        'prod-ssh'
+        'prod-ftp'
+        'prod-getimg'
+        'prod-tramp'
+    )
+    cmds="${cmds_array[@]}"
 
-    # first argument : the command
-    if [[ ${prev} == 'spipsh' ]] ; then
-        opts="\
-cc \
-init \
-get_loader \
-get_ecran_secu \
-db-query \
-db-import \
-db-dump \
-db-login \
-run-script \
-prod-db-dump \
-prod-ssh \
-prod-ftp \
-prod-getimg \
-prod-tramp";
-        COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+    for word in "${COMP_WORDS[@]}"; do
+        if [[ -n "$word" ]] && [[ ! "$word" =~ ^- ]]; then
+            for command in "${cmds_array[@]}"; do
+                if [[ "$command" == "$word" ]]; then
+                    cmd="$word";
+                    break 2;
+                fi
+            done
+        fi
+    done
+
+    if [[ -z "${cmd:+x}" ]] && [[ ! "${cur}" =~ ^- ]]; then
+        COMPREPLY=( $(compgen -W "${cmds}" -- ${cur}) )
         return 0
-    # complete some commands
-    else
-        case "${prev}" in
-            cc)
-                COMPREPLY=( $(compgen -W "all" -- ${cur}) );
-                return 0;
-                ;;
+    elif [[ -n "${cmd:+x}" ]] && [[ ! "${cur}" =~ ^- ]]; then
+        case "${cmd}" in
             db-import)
                 local running=$(find "."\
                                      -path "./${cur}*.sql.gz"\
@@ -65,11 +72,14 @@ prod-tramp";
                 return 0
                 ;;
             *)
+                COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
                 return 0
                 ;;
         esac
+    elif [[ "${cur}" =~ ^- ]]; then
+        COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+        return 0
     fi
-
 }
 
 complete -F _spipsh_completion spipsh
