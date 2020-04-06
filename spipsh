@@ -179,7 +179,8 @@ case $cmd in
 
     cc)
         do_and_tell "vide le cache"\
-                    rm -rf tmp/cache{,.php,.gz}
+                    rm -rf tmp/{cache,plugin_xml_cache.gz,meta_cache.php,menu-rubriques-cache.txt} \&\&\
+                    rm -rf local/{cache-css,cache-js}
 
         if [[ -n ${2+x} ]] && [[ $2 == "all" ]] ; then
             do_and_tell "vide le cache des vignettes"\
