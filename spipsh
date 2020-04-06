@@ -11,6 +11,27 @@ SPIP_NEEDED_DIRS="config IMG local lib tmp plugins plugins/auto plugins/fabrique
 # Les dossiers qui doivent être accessibles en écriture par Apache
 SPIP_WRITEABLE_DIRS="config IMG local lib tmp plugins/auto plugins/fabrique_auto"
 
+cmd=${1:-help};
+shift;
+
+while [[ "${1-x}" =~ ^- ]]; do
+    case $1 in
+        -a | --all)
+            all=1;
+            ;;
+        -t | --tmp-dir)
+            shift; tmp_dir="$1";
+            ;;
+        -l | --local-dir)
+            shift; local_dir="$1";
+            ;;
+        *)
+            usage_error "option invalide : $1"
+            ;;
+    esac
+    shift;
+done
+
 usage_error () {
     # texte en rouge
     echo "$(tput setaf 3)$1$(tput sgr 0)" 1>&2;
@@ -135,10 +156,6 @@ get_env () {
 }
 
 
-cmd=${1:-help};
-shift;
-
-
 # charger le contexte si nécessaire
 env_commands=(
     'init'
@@ -179,25 +196,13 @@ case $cmd in
         ;;
 
     cc)
-        while [[ "${1-x}" =~ ^- ]]; do
-            case $1 in
-                -a | --all)
-                    all=1;
-                    ;;
-                *)
-                    usage_error "option invalide : $1"
-                    ;;
-            esac
-            shift;
-        done
-
         do_and_tell "vide le cache"\
-                    rm -rf tmp/{cache,plugin_xml_cache.gz,meta_cache.php,menu-rubriques-cache.txt} \&\&\
-                    rm -rf local/{cache-css,cache-js}
+                    rm -rf ${tmp_dir:-tmp}/{cache,plugin_xml_cache.gz,meta_cache.php,menu-rubriques-cache.txt} \&\&\
+                    rm -rf ${local_dir:-local}/{cache-css,cache-js}
 
         if [[ -n ${all+x} ]] ; then
             do_and_tell "vide le cache des vignettes"\
-                        rm -rf local/*;
+                        rm -rf ${local_dir:-local}/*;
         fi
         ;;
 
@@ -326,9 +331,12 @@ Commandes :
 
 Options :
 
-  --all | -a      Permet de vider aussi le cache de vignettes. Valable uniquement
-                  pour la commande cc.
+  --all | -a               Permet de vider aussi le cache de vignettes. Valable
+                           uniquement pour la commande cc.
 
+  --tmp-dir | -t STRING    Permet de choisir un répertoire tmp/ alternatif.
+
+  --local-dir | -l STRING  Permet de choisir un répertoire local/ alternatif.
 ";
         ;;
 esac
