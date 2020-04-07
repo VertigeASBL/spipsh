@@ -11,17 +11,14 @@ SPIP_NEEDED_DIRS="config IMG local lib tmp plugins plugins/auto plugins/fabrique
 # Les dossiers qui doivent être accessibles en écriture par Apache
 SPIP_WRITEABLE_DIRS="config IMG local lib tmp plugins/auto plugins/fabrique_auto"
 
-usage_error () {
-    # texte en jaune
-    echo "$(tput setaf 3)$1$(tput sgr 0)" 1>&2;
-    exit 2;
-}
+script_dir="$(dirname "$(readlink -f "$0")")"
 
-fatal_error () {
-    # texte en rouge
-    echo "$(tput setaf 1)$1$(tput sgr 0)" 1>&2;
-    exit 1;
-}
+# shellcheck source=lib/io.sh
+. "$script_dir/lib/io.sh"
+# shellcheck source=lib/wrappers.sh
+. "$script_dir/lib/wrappers.sh"
+# shellcheck source=lib/spip.sh
+. "$script_dir/lib/spip.sh"
 
 # commande par défaut
 if [[ -z "${1+x}" ]]; then
@@ -120,123 +117,6 @@ while [[ -n "${1+x}" ]]; do
     fi
     shift;
 done
-
-do_and_tell () {
-    # la description en vert s'il y en a une
-    if [[ -n "$1" ]]; then
-        echo "$(tput setaf 2)# $1$(tput sgr 0)"
-    fi
-    shift
-    if [[ ${dry_run:-0} -ne 1 ]]; then
-        # la commande en bleu
-        echo "$(tput setaf 4)> $*$(tput sgr 0)"
-        # exécuter la commande
-        eval "$*"
-    else
-        # la commande en bleu dimmé
-        echo "$(tput dim)$(tput setaf 4)> $*$(tput sgr 0)"
-    fi
-}
-
-check_program () {
-    if [[ ! -x $(which "$1") ]]; then
-        fatal_error "Le programme $1 n'est pas installé.";
-    fi
-}
-
-ssh_do () {
-    check_program "ssh";
-
-    ssh "$ssh_user"@"$prod_host" "$1"
-}
-
-remove_some_warnings() {
-
-    grep --no-messages --invert-match 'Using a password on the command line interface can be insecure.';
-}
-
-# une version de la commande mysql qui ne fait pas de warnings quand on passe le
-# mot de passe en option.
-mysql_quiet () {
-    check_program "mysql";
-
-    mysql "$@" 2> >(remove_some_warnings >&2);
-}
-
-# une version de zcat qui sait aussi lire le fichier non-compressés.
-zcat_or_cat () {
-    ( zcat "$1" 2> /dev/null || cat "$1" )
-}
-
-
-get_spip_root () {
-
-    spip_root='';
-
-    cwd=$( pwd );
-    while [[ $( pwd ) != '/' ]]; do
-        if [[ -f 'ecrire/inc_version.php' ]]; then
-            spip_root=$( pwd );
-            break;
-        fi
-        cd ..;
-    done;
-    cd "$cwd";
-
-    if [[ -z "$spip_root" ]]; then
-        fatal_error "ecrire/inc_version.php introuvable. Ce script doit être exécuté dans l'arborescence d'un site SPIP."
-    fi;
-
-    echo "$spip_root";
-}
-
-get_env () {
-
-    spip_root=$( get_spip_root );
-
-    # On se place à la racine du SPIP si c'est possible, on annule tout sinon.
-    if [[ -z "$spip_root" ]]; then
-        exit 1;
-    else
-        cd "$spip_root" || exit 1;
-    fi;
-
-    # charger des variables d'environnement dans un fichier .env
-    if [ -r .env ]; then
-        source .env
-    elif [ -r .env.gpg ]; then
-        eval "$(gpg -d .env.gpg 2> /dev/null)"
-    fi
-
-    # charger les accès à la DB depuis config/connect.php
-    if [[ -f "config/${connect:=connect}.php" ]]; then
-
-        IFS=',' read -r db_host db_port db_user db_pwd db_name _ db_prefix _ <<< \
-             $( grep spip_connect_db "config/$connect.php"\
-                    | sed 's/^spip_connect_db(//'\
-                    | sed -E "s/[^']*'([^']*)'?/\1,/g"\
-                    | sed "s/);//"\
-                    | head --lines=1 );
-
-        if [[ -z "$db_port" ]]; then
-            db_port=3306; # use default
-        fi;
-    else
-        fatal_error "Le fichier config/$connect.php n'existe pas, est-ce que ce SPIP est bien installé ?";
-    fi
-
-    # charger les accès au ftp de prod depuis la config de git
-    if [[ -z ${ftp_user+x} ]]; then
-        ftp_user="$( git config --get git-ftp.user || echo '' )";
-    fi;
-    if [[ -z ${ftp_pwd+x} ]]; then
-        ftp_pwd="$( git config --get git-ftp.password || echo '' )";
-    fi;
-    if [[ -z ${ftp_url+x} ]]; then
-        ftp_url="$( git config --get git-ftp.url || echo '' )";
-    fi;
-}
-
 
 # charger le contexte si nécessaire
 env_commands=(
