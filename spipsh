@@ -362,8 +362,8 @@ case $cmd in
 
         do_and_tell "Importer la DB de production dans un dump local"\
                     ssh -C "$ssh_user"@"$prod_host"\
-                    "\"mysqldump -h $db_prod_host -u $db_prod_user -p$db_prod_pass --add-drop-table $db_prod_name \
-                     2> <(grep -v 'Using a password on the command line interface can be insecure.' >&2);\"" \
+                    '"mysqldump -h' "$db_prod_host" '-u' "$db_prod_user" '-p$db_prod_pass --add-drop-table' "$db_prod_name" \
+                    '2> <(grep -v \"Using a password on the command line interface can be insecure.\" >&2);"' \
                     \| gzip \> "$filename";
         ;;
 
