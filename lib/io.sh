@@ -29,3 +29,27 @@ do_and_tell () {
         echo "$(tput dim)$(tput setaf 4)> $*$(tput sgr 0)"
     fi
 }
+
+get_command_meta () {
+    local cmd
+
+    cmd="$1"
+    meta="$2"
+
+    <"$script_dir/cmd/${cmd}.sh" awk -v meta="$meta" '
+BEGIN { stop=0; IGNORE_CASE=1 }
+
+! /^#/ { stop=1 }
+
+/^# / && stop==0 {
+    if (match($0, /^# ([^:]+) : (.*)$/, matches)) {
+       current_meta = tolower(matches[1])
+       metas[current_meta] = matches[2]
+    } else {
+       metas[current_meta] = metas[current_meta] substr($0, 2)
+    }
+}
+
+END { print metas[meta] }
+'
+}

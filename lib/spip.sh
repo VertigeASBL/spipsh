@@ -24,7 +24,7 @@ get_spip_root () {
     echo "$spip_root";
 }
 
-get_env () {
+get_spip_env () {
 
     spip_root=$( get_spip_root );
 

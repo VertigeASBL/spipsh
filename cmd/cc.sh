@@ -1,4 +1,5 @@
 #!/bin/bash
+# Env : spip
 set -euo pipefail
 
 read -r _ file < <(caller)
