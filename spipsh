@@ -143,136 +143,11 @@ for item in "${env_commands[@]}"; do
 done;
 
 
-# exécuter la commande
-case $cmd in
-
-    init)
-        for dir in $SPIP_NEEDED_DIRS; do
-            if [[ ! -d $dir ]]; then
-                do_and_tell "crée le dossier $dir"\
-                            mkdir "$dir";
-            fi
-        done
-        do_and_tell "répare les permissions"\
-                    chmod -R a+rwX $SPIP_WRITEABLE_DIRS;
-        ;;
-
-    cc)
-        do_and_tell "vide le cache"\
-                    rm -rf ${tmp_dir:-tmp}/{cache,plugin_xml_cache.gz,meta_cache.php,menu-rubriques-cache.txt} \&\&\
-                    rm -rf ${local_dir:-local}/{cache-css,cache-js}
-
-        if [[ -n ${all+x} ]] ; then
-            do_and_tell "vide le cache des vignettes"\
-                        rm -rf ${local_dir:-local}/*;
-        fi
-        ;;
-
-    get_loader)
-        check_program "wget"
-
-        wget https://www.spip.net/spip-dev/INSTALL/spip_loader.php -O spip_loader.php
-        ;;
-
-    get_ecran_secu)
-        check_program "wget"
-
-        wget --output-document=config/ecran_securite.php https://zone.spip.org/trac/spip-zone/browser/_core_/securite/ecran_securite.php?format=txt
-        ;;
-
-    db-query)
-        if [[ -z "${db_query+x}" ]]; then
-            usage_error "Vous devez spécifier une commande à exécuter.";
-        fi
-
-        mysql_quiet --execute="$db_query"\
-                    --user "$db_user" --password="$db_pwd"\
-                    --host="$db_host" --port="$db_port" "$db_name"
-        ;;
-
-    db-import)
-        check_program "zcat"
-
-        if [[ -z "${db_dump+x}" ]]; then
-            usage_error "Vous devez spécifier un dump sql.gz à importer";
-        else
-            do_and_tell "vide la db"\
-                        mysql_quiet --execute="\"DROP DATABASE $db_name; CREATE DATABASE $db_name;"\"\
-                        --user "$db_user" --password='"$db_pwd"'\
-                        --host="$db_host" --port="$db_port";
-            do_and_tell "importe le dump..."\
-                        zcat_or_cat "$db_dump" \| mysql_quiet --user "$db_user" --password='"$db_pwd"'\
-                        --host="$db_host" --port="$db_port" "$db_name";
-        fi
-        ;;
-
-    db-dump)
-        check_program "mysqldump"
-
-        mysqldump --user "$db_user" --password="$db_pwd" --host="$db_host" --port="$db_port" "$db_name" \
-            2> <(remove_some_warnings);
-        ;;
-
-    db-login)
-
-        mysql_quiet --user "$db_user" --password="$db_pwd" --host="$db_host" --port="$db_port" "$db_name";
-        ;;
-
-    run-script)
-        if [[ -z "${script+x}" ]]; then
-            usage_error "Vous devez spécifier le nom d'un script.";
-        else
-            . "./bin/$script";
-        fi
-        ;;
-
-    prod-db-dump)
-        check_program "ssh";
-        check_program "gzip";
-
-        if [[ -z $prod_web_dir ]]; then
-            prod_web_dir='public';
-        fi;
-
-        mkdir -p backup-db/prod
-
-        now=$(date '+%F-%R');
-        current_commit=$(ssh_do "cd $prod_web_dir && git log -1 --format='%H'");
-        filename="backup-db/prod/$site_slug-prod-$now-$current_commit.sql.gz";
-
-        do_and_tell "Importer la DB de production dans un dump local"\
-                    ssh -C "$ssh_user"@"$prod_host"\
-                    '"mysqldump -h' "$db_prod_host" '-u' "$db_prod_user" '-p$db_prod_pass --add-drop-table' "$db_prod_name" \
-                    '2> <(grep -v \"Using a password on the command line interface can be insecure.\" >&2);"' \
-                    \| gzip \> "$filename";
-        ;;
-
-    prod-ssh)
-        check_program "ssh";
-
-        ssh "$ssh_user"@"$prod_host";
-        ;;
-
-    prod-ftp)
-        check_program "lftp"
-
-        lftp -u "$ftp_user","$ftp_pwd" "$ftp_url";
-        ;;
-
-    prod-getimg)
-        check_program "lftp"
-
-        do_and_tell "rapatrier les images et documents du serveur de production"\
-                    lftp -u "$ftp_user",'"$ftp_pwd"' "$ftp_url" -e "mirror IMG/ ./IMG/ ; exit";
-        ;;
-
-    prod-tramp)
-        check_program "emacs"
-
-        emacsclient --eval "(find-file \"/ssh:$ssh_user@$prod_host:.\")"
-        ;;
-    *)
-        usage_error "\
+if [[ -f "${cmd_file:=${script_dir}/cmd/$cmd.sh}" ]]; then
+    # shellcheck source=/dev/null
+    . "$cmd_file"
+else
+    usage_error "\
 
 Contrôle SPIP à la ligne de commande. Doit être exécuté depuis la racine d'un site spip.
 
@@ -311,5 +186,4 @@ Options :
 
   --local-dir | -l STRING  Permet de choisir un répertoire local/ alternatif.
 ";
-        ;;
-esac
+fi
