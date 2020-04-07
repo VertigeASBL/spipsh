@@ -45,7 +45,7 @@ while [[ -n ${1+x} ]]; do
 done
 set -- "${args[@]}"
 
-# parser les arguments
+# parser et valider les arguments
 spipsh_opts="";
 while [[ -n "${1+x}" ]]; do
     if [[ ! "$1" =~ ^- ]]; then
@@ -66,7 +66,8 @@ while [[ -n "${1+x}" ]]; do
         fi
     else
         spipsh_opts="$spipsh_opts $1";
-        case $1 in
+        opt="$1"
+        case $opt in
             -a | --all)
                 all=1;
                 ;;
@@ -74,15 +75,42 @@ while [[ -n "${1+x}" ]]; do
                 dry_run=1;
                 ;;
             -t | --tmp-dir)
-                shift; tmp_dir="$1";
+                shift;
+                if [[ -z "${1+x}" ]]; then
+                    usage_error "L'option $opt nécessite un nom de dossier en argument."
+                fi
+
+                tmp_dir="$1";
+
+                if [[ ! -d "$tmp_dir" ]]; then
+                    usage_error "$tmp_dir n'est pas un répertoire."
+                fi
                 spipsh_opts="$spipsh_opts $1";
                 ;;
             -l | --local-dir)
-                shift; local_dir="$1";
+                shift;
+                if [[ -z "${1+x}" ]]; then
+                    usage_error "L'option $opt nécessite un nom de dossier en argument."
+                fi
+
+                local_dir="$1";
+
+                if [[ ! -d "$local_dir" ]]; then
+                    usage_error "$local_dir n'est pas un répertoire."
+                fi
                 spipsh_opts="$spipsh_opts $1";
                 ;;
             -c | --connect)
-                shift; connect="$1";
+                shift;
+                if [[ -z "${1+x}" ]]; then
+                    usage_error "L'option $opt nécessite un nom de fichier en argument."
+                fi
+
+                connect="$1";
+
+                if [[ ! -f "config/${connect}.php" ]]; then
+                    usage_error "config/${connect}.php n'est pas un fichier."
+                fi
                 spipsh_opts="$spipsh_opts $1";
                 ;;
             *)
