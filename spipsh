@@ -12,13 +12,13 @@ SPIP_NEEDED_DIRS="config IMG local lib tmp plugins plugins/auto plugins/fabrique
 SPIP_WRITEABLE_DIRS="config IMG local lib tmp plugins/auto plugins/fabrique_auto"
 
 usage_error () {
-    # texte en rouge
+    # texte en jaune
     echo "$(tput setaf 3)$1$(tput sgr 0)" 1>&2;
     exit 2;
 }
 
 fatal_error () {
-    # texte en jaune
+    # texte en rouge
     echo "$(tput setaf 1)$1$(tput sgr 0)" 1>&2;
     exit 1;
 }
