@@ -12,11 +12,6 @@ set -euo pipefail
 # Complète spip-cli, en ce s'occupant des choses hors de sa portée, comme les
 # permissions sur les dossiers.
 
-# Les dossiers qui doivent exister pour que SPIP fonctionne sans embrouilles
-SPIP_NEEDED_DIRS="config IMG local lib tmp plugins plugins/auto plugins/fabrique_auto squelettes"
-# Les dossiers qui doivent être accessibles en écriture par Apache
-SPIP_WRITEABLE_DIRS="config IMG local lib tmp plugins/auto plugins/fabrique_auto"
-
 term_width=80
 script_dir="$(dirname "$(readlink -f "$0")")"
 
