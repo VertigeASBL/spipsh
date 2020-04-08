@@ -57,7 +57,7 @@ BEGIN { stop=0; IGNORE_CASE=1 }
 ! /^#/ { stop=1 }
 
 /^# / && stop==0 {
-    if (match($0, /^# ([^:]+) : (.*)$/, matches)) {
+    if (match($0, /^# ([^:]+) : ?(.*)$/, matches)) {
        current_meta = tolower(matches[1])
        metas[current_meta] = matches[2]
     } else {
