@@ -52,12 +52,18 @@ while [[ -n "${1+x}" ]]; do
         else
             case $cmd in
                 db-query)
+                    # utilisé par la commande db-query
+                    # shellcheck disable=SC2034
                     db_query="$1";
                     ;;
                 db-import)
+                    # utilisé par la commande db-dump
+                    # shellcheck disable=SC2034
                     db_dump="$1";
                     ;;
                 run-script)
+                    # utilisé par la commande run-script
+                    # shellcheck disable=SC2034
                     script="$1";
                     ;;
             esac
@@ -67,6 +73,8 @@ while [[ -n "${1+x}" ]]; do
         opt="$1"
         case $opt in
             -a | --all)
+                # utilisé par la commande cc
+                # shellcheck disable=SC2034
                 all=1;
                 ;;
             -d | --dry-run)
