@@ -9,7 +9,7 @@ if [[ ! -f "$file" ]] || [[ ! "$file" =~ /spipsh$ ]]; then
     exit 2;
 fi
 
-check_program "mysqldump"
+util_bin_ok "mysqldump"
 
 mysqldump --user "$db_user" --password="$db_pwd" --host="$db_host" --port="$db_port" "$db_name" \
-          2> <(remove_some_warnings);
+          2> <(util_filter_warnings);

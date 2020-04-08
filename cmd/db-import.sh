@@ -9,16 +9,16 @@ if [[ ! -f "$file" ]] || [[ ! "$file" =~ /spipsh$ ]]; then
     exit 2;
 fi
 
-check_program "zcat"
+util_bin_ok "zcat"
 
 if [[ -z "${db_dump+x}" ]]; then
-    usage_error "Vous devez spécifier un dump sql.gz à importer";
+    out_usage_error "Vous devez spécifier un dump sql.gz à importer";
 else
-    do_and_tell "vide la db"\
-                mysql_quiet --execute="\"DROP DATABASE $db_name; CREATE DATABASE $db_name;"\"\
+    out_exec "vide la db"\
+                util_mysql_quiet --execute="\"DROP DATABASE $db_name; CREATE DATABASE $db_name;"\"\
                 --user "$db_user" --password='"$db_pwd"'\
                 --host="$db_host" --port="$db_port";
-    do_and_tell "importe le dump..."\
-                zcat_or_cat "$db_dump" \| mysql_quiet --user "$db_user" --password='"$db_pwd"'\
+    out_exec "importe le dump..."\
+                util_zcat_or_cat "$db_dump" \| util_mysql_quiet --user "$db_user" --password='"$db_pwd"'\
                 --host="$db_host" --port="$db_port" "$db_name";
 fi

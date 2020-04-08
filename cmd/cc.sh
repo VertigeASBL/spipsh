@@ -9,11 +9,11 @@ if [[ ! -f "$file" ]] || [[ ! "$file" =~ /spipsh$ ]]; then
     exit 2;
 fi
 
-do_and_tell "vide le cache"\
+out_exec "vide le cache"\
             rm -rf ${tmp_dir:-tmp}/{cache,plugin_xml_cache.gz,meta_cache.php,menu-rubriques-cache.txt} \&\&\
             rm -rf ${local_dir:-local}/{cache-css,cache-js}
 
 if [[ -n ${all+x} ]] ; then
-    do_and_tell "vide le cache des vignettes"\
+    out_exec "vide le cache des vignettes"\
                 rm -rf ${local_dir:-local}/*;
 fi

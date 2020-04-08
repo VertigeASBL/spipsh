@@ -9,6 +9,6 @@ if [[ ! -f "$file" ]] || [[ ! "$file" =~ /spipsh$ ]]; then
     exit 2;
 fi
 
-check_program "lftp"
+util_bin_ok "lftp"
 
 lftp -u "$ftp_user","$ftp_pwd" "$ftp_url";

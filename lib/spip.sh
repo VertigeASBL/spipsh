@@ -1,8 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-get_spip_root () {
-
+_spip_get_root () {
     local spip_root cwd
 
     spip_root='';
@@ -18,15 +17,15 @@ get_spip_root () {
     cd "$cwd";
 
     if [[ -z "$spip_root" ]]; then
-        fatal_error "ecrire/inc_version.php introuvable. Ce script doit être exécuté dans l'arborescence d'un site SPIP."
+        out_fatal_error "ecrire/inc_version.php introuvable. Ce script doit être exécuté dans l'arborescence d'un site SPIP."
     fi;
 
     echo "$spip_root";
 }
 
-get_spip_env () {
+_spip_get_env () {
 
-    spip_root=$( get_spip_root );
+    spip_root=$( _spip_get_root );
 
     # On se place à la racine du SPIP si c'est possible, on annule tout sinon.
     if [[ -z "$spip_root" ]]; then
@@ -37,6 +36,7 @@ get_spip_env () {
 
     # charger des variables d'environnement dans un fichier .env
     if [ -r .env ]; then
+        # shellcheck source=/dev/null
         source .env
     elif [ -r .env.gpg ]; then
         eval "$(gpg -d .env.gpg 2> /dev/null)"
@@ -45,6 +45,7 @@ get_spip_env () {
     # charger les accès à la DB depuis config/connect.php
     if [[ -f "config/${connect:=connect}.php" ]]; then
 
+        # shellcheck disable=SC2034
         IFS=',' read -r db_host db_port db_user db_pwd db_name _ db_prefix _ <<< \
              $( grep spip_connect_db "config/$connect.php"\
                     | sed 's/^spip_connect_db(//'\
@@ -56,7 +57,7 @@ get_spip_env () {
             db_port=3306; # use default
         fi;
     else
-        fatal_error "Le fichier config/$connect.php n'existe pas, est-ce que ce SPIP est bien installé ?";
+        out_fatal_error "Le fichier config/$connect.php n'existe pas, est-ce que ce SPIP est bien installé ?";
     fi
 
     # charger les accès au ftp de prod depuis la config de git

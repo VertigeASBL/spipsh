@@ -8,6 +8,6 @@ if [[ ! -f "$file" ]] || [[ ! "$file" =~ /spipsh$ ]]; then
     exit 2;
 fi
 
-check_program "wget"
+util_bin_ok "wget"
 
 wget https://www.spip.net/spip-dev/INSTALL/spip_loader.php -O spip_loader.php

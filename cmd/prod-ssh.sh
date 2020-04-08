@@ -9,6 +9,6 @@ if [[ ! -f "$file" ]] || [[ ! "$file" =~ /spipsh$ ]]; then
     exit 2;
 fi
 
-check_program "ssh";
+util_bin_ok "ssh";
 
 ssh "$ssh_user"@"$prod_host";

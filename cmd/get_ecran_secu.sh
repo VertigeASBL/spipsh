@@ -9,6 +9,6 @@ if [[ ! -f "$file" ]] || [[ ! "$file" =~ /spipsh$ ]]; then
     exit 2;
 fi
 
-check_program "wget"
+util_bin_ok "wget"
 
 wget --output-document=config/ecran_securite.php https://zone.spip.org/trac/spip-zone/browser/_core_/securite/ecran_securite.php?format=txt

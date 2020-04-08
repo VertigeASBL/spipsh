@@ -9,7 +9,7 @@ if [[ ! -f "$file" ]] || [[ ! "$file" =~ /spipsh$ ]]; then
     exit 2;
 fi
 
-check_program "lftp"
+util_bin_ok "lftp"
 
-do_and_tell "rapatrier les images et documents du serveur de production"\
+out_exec "rapatrier les images et documents du serveur de production"\
             lftp -u "$ftp_user",'"$ftp_pwd"' "$ftp_url" -e "mirror IMG/ ./IMG/ ; exit";

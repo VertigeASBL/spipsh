@@ -13,7 +13,7 @@ if [[ ! -f "$file" ]] || [[ ! "$file" =~ /spipsh$ ]]; then
 fi
 
 if [[ -z "${script+x}" ]]; then
-    usage_error "Vous devez spécifier le nom d'un script.";
+    out_usage_error "Vous devez spécifier le nom d'un script.";
 else
     # shellcheck source=/dev/null
     . "./bin/$script";

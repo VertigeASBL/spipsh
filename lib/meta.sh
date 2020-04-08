@@ -1,13 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-get_command_meta () {
-
-    get_file_meta "$script_dir/cmd/${1}.sh" "$2"
-}
-
-get_file_meta () {
-
+_meta_get () {
     local file meta
 
     file="$1"
@@ -31,12 +25,11 @@ END { print metas[meta] }
 '
 }
 
-get_file_meta_option () {
-
+_meta_get_option () {
     local options
 
     # shellcheck disable=SC2154
-    options="$( get_file_meta "$1" "options" )"
+    options="$( _meta_get "$1" "options" )"
     echo "$options" | awk -v option="$2" -v param="$3" '
 BEGIN { RS="%% " }
 
@@ -51,3 +44,8 @@ BEGIN { RS="%% " }
 '
 }
 
+_meta_command_get () {
+
+    # shellcheck disable=SC2154
+    _meta_get "$script_dir/cmd/${1}.sh" "$2"
+}

@@ -9,6 +9,6 @@ if [[ ! -f "$file" ]] || [[ ! "$file" =~ /spipsh$ ]]; then
     exit 2;
 fi
 
-check_program "emacs"
+util_bin_ok "emacs"
 
 emacsclient --eval "(find-file \"/ssh:$ssh_user@$prod_host:.\")"

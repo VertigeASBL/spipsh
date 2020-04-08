@@ -99,74 +99,57 @@ while [[ -n "${1+x}" ]]; do
             -t | --tmp-dir)
                 shift;
                 if [[ -z "${1+x}" ]]; then
-                    usage_error "L'option $opt nécessite un nom de dossier en argument."
+                    out_usage_error "L'option $opt nécessite un nom de dossier en argument."
                 fi
 
                 tmp_dir="$1";
 
                 if [[ ! -d "$tmp_dir" ]]; then
-                    usage_error "$tmp_dir n'est pas un répertoire."
+                    out_usage_error "$tmp_dir n'est pas un répertoire."
                 fi
                 spipsh_opts="$spipsh_opts $1";
                 ;;
             -l | --local-dir)
                 shift;
                 if [[ -z "${1+x}" ]]; then
-                    usage_error "L'option $opt nécessite un nom de dossier en argument."
+                    out_usage_error "L'option $opt nécessite un nom de dossier en argument."
                 fi
 
                 local_dir="$1";
 
                 if [[ ! -d "$local_dir" ]]; then
-                    usage_error "$local_dir n'est pas un répertoire."
+                    out_usage_error "$local_dir n'est pas un répertoire."
                 fi
                 spipsh_opts="$spipsh_opts $1";
                 ;;
             -c | --connect)
                 shift;
                 if [[ -z "${1+x}" ]]; then
-                    usage_error "L'option $opt nécessite un nom de fichier en argument."
+                    out_usage_error "L'option $opt nécessite un nom de fichier en argument."
                 fi
 
                 connect="$1";
 
                 if [[ ! -f "config/${connect}.php" ]]; then
-                    usage_error "config/${connect}.php n'est pas un fichier."
+                    out_usage_error "config/${connect}.php n'est pas un fichier."
                 fi
                 spipsh_opts="$spipsh_opts $1";
                 ;;
             *)
-                usage_error "option invalide : $1"
+                out_usage_error "option invalide : $1"
                 ;;
         esac
     fi
     shift;
 done
 
-if is_registered_command "$cmd" && [[ $( get_command_meta "$cmd" "env" ) == 'spip' ]]; then
-    get_spip_env;
+if _cmds_is_registered "$cmd" && [[ $( _meta_command_get "$cmd" "env" ) == 'spip' ]]; then
+    _spip_get_env;
 fi;
 
 if [[ -f "${cmd_file:=${script_dir}/cmd/$cmd.sh}" ]]; then
     # shellcheck source=/dev/null
     . "$cmd_file"
 else
-    usage_error "$( printf "\
-%s
-
-Usage : %s
-
-Commandes :
-
-%s
-
-Options :
-
-%s
-" \
-"$(get_file_meta "${script_dir}/spipsh" "description" | fmt --width=${term_width})" \
-"$(get_file_meta "${script_dir}/spipsh" "usage")" \
-"$(get_commands_descriptions)" \
-"$(get_options_descriptions)" \
-)"
+    _help_print
 fi
