@@ -1,4 +1,5 @@
 #!/bin/bash
+# Description : Récupère le contenu du dossier IMG en production via lftp.
 # Env : spip
 set -euo pipefail
 

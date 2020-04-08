@@ -1,4 +1,5 @@
 #!/bin/bash
+# Description : Récupère la dernière version de spip_loader.php.
 set -euo pipefail
 
 read -r _ file < <(caller)

@@ -11,6 +11,7 @@ SPIP_NEEDED_DIRS="config IMG local lib tmp plugins plugins/auto plugins/fabrique
 # Les dossiers qui doivent être accessibles en écriture par Apache
 SPIP_WRITEABLE_DIRS="config IMG local lib tmp plugins/auto plugins/fabrique_auto"
 
+term_width=80
 script_dir="$(dirname "$(readlink -f "$0")")"
 
 # shellcheck source=lib/io.sh
@@ -118,7 +119,7 @@ while [[ -n "${1+x}" ]]; do
     shift;
 done
 
-if [[ $( get_command_meta "$cmd" "env" ) == 'spip' ]]; then
+if is_registered_command "$cmd" && [[ $( get_command_meta "$cmd" "env" ) == 'spip' ]]; then
     get_spip_env;
 fi;
 
@@ -126,7 +127,7 @@ if [[ -f "${cmd_file:=${script_dir}/cmd/$cmd.sh}" ]]; then
     # shellcheck source=/dev/null
     . "$cmd_file"
 else
-    usage_error "\
+    usage_error "$( printf "\
 
 Contrôle SPIP à la ligne de commande. Doit être exécuté depuis la racine d'un site spip.
 
@@ -134,23 +135,7 @@ Usage : spipsh [COMMAND]
 
 Commandes :
 
-  cc              Vide les caches du dossier tmp, à la dure, sans passer par SPIP.
-  init            Crée les dossiers de plugins et de libraires, puis donne les
-                    permissions adequates.
-  get_loader      Récupère la dernière version de spip_loader.php.
-  get_ecran_secu  Récupère et installe la dernière version de l'écran de sécurité
-  db-query        Exécute une commande MySQL.
-  db-import       Importe un dump au format sql.gz dans la base de données MySQL.
-  db-dump         Dump la db dans stdout.
-  db-login        Ouvre une connexion à mysql dans le terminal
-  run-script      Lance un script bash en lui passant les variables d'environnement
-                    qui vont bien. On passe l'adresse du script relativement au
-                    dossier bin/ situé à la racine du SPIP.
-  prod-db-dump    Dump la db de production dans le dossier backup-db/prod/
-  prod-ssh        Ouvre un shell sur le serveur de prod via ssh
-  prod-ftp        Ouvre une connexion ftp vers le serveur via lftp.
-  prod-getimg     Récupère le contenu du dossier IMG en production via lftp.
-  prod-tramp      Ouvrir le dossier racine de la prod dans emacs.
+%s
 
 Options :
 
@@ -164,5 +149,5 @@ Options :
   --tmp-dir | -t STRING    Permet de choisir un répertoire tmp/ alternatif.
 
   --local-dir | -l STRING  Permet de choisir un répertoire local/ alternatif.
-";
+" "$(get_commands_descriptions)" )"
 fi

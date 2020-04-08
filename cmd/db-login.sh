@@ -1,4 +1,5 @@
 #!/bin/bash
+# Description : Ouvre une connexion à mysql dans le terminal
 # Env : spip
 set -euo pipefail
 

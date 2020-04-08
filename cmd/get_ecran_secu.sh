@@ -1,4 +1,5 @@
 #!/bin/bash
+# Description : Récupère et installe la dernière version de l'écran de sécurité.
 # Env : spip
 set -euo pipefail
 

@@ -1,4 +1,5 @@
 #!/bin/bash
+# Description : Ouvre une connexion ftp vers le serveur via lftp.
 # Env : spip
 set -euo pipefail
 

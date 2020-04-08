@@ -1,4 +1,5 @@
 #!/bin/bash
+# Description : Ouvrir le dossier racine de la prod dans emacs.
 # Env : spip
 set -euo pipefail
 

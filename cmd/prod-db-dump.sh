@@ -1,4 +1,5 @@
 #!/bin/bash
+# Description : Dump la db de production dans le dossier backup-db/prod/.
 # Env : spip
 set -euo pipefail
 
