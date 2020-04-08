@@ -39,36 +39,6 @@ is_registered_command () {
     fi
 }
 
-get_command_meta () {
-
-    get_file_meta "$script_dir/cmd/${1}.sh" "$2"
-}
-
-get_file_meta () {
-
-    local file meta
-
-    file="$1"
-    meta="$2"
-
-    <"$file" awk -v meta="$meta" '
-BEGIN { stop=0; IGNORE_CASE=1 }
-
-! /^#/ { stop=1 }
-
-/^# / && stop==0 {
-    if (match($0, /^# ([^:]+) : ?(.*)$/, matches)) {
-       current_meta = tolower(matches[1])
-       metas[current_meta] = matches[2]
-    } else {
-       metas[current_meta] = metas[current_meta] substr($0, 2)
-    }
-}
-
-END { print metas[meta] }
-'
-}
-
 get_commands () {
 
     find "${script_dir:?}/cmd/" -type f -name '*.sh' -print | sort \
@@ -77,7 +47,6 @@ get_commands () {
 }
 
 get_commands_descriptions () {
-
     local cmds max_cmd_length line_index
 
     cmds=$(get_commands)
@@ -90,6 +59,7 @@ get_commands_descriptions () {
     done
 
     cmd_col_width=$((max_cmd_length + 1))
+    # shellcheck disable=SC2154
     desc_col_width=$((term_width - cmd_col_width - 3))
 
     for cmd in $cmds; do
@@ -103,5 +73,31 @@ get_commands_descriptions () {
             fi
             ((line_index++))
         done <<< "$( get_command_meta "$cmd" "description" | fmt --width="$desc_col_width" )"
+    done
+}
+
+get_options_descriptions () {
+    local desc_offset options usages descs usage
+
+    desc_offset=10
+    options=$(get_main_options)
+    usages=()
+    descs=()
+
+    for option in $options; do
+        usage="$(printf "  --%s | -%s" "$option" "$(get_main_option_param "$option" "short")")"
+        if [[ -z "$(get_main_option_param "$option" "value")" ]]; then
+            usage="$usage [$(get_main_option_param "$option" "variable" | awk '{print toupper($0)}')]"
+        fi
+        usages+=("$usage")
+        descs+=("$(get_main_option_param "$option" "desc" | fmt --width=$((term_width - desc_offset)))")
+    done
+
+    for ((i=0; i<${#usages[@]}; i++)); do
+        printf "%s\n" "${usages[i]}"
+        while IFS= read -r line; do
+            printf "%${desc_offset}s%s\n" " " "${line}"
+        done <<< "${descs[i]}"
+        echo
     done
 }

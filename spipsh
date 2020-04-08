@@ -4,23 +4,38 @@
 # la racine d'un site spip.
 #
 # Usage : spipsh [COMMAND]
-
+#
+# Options :
+#
+# %% all
+# desc="Permet de vider aussi le cache des vignettes. Valable uniquement pour la commande cc."
+# short="a" variable="all" value="1" default=0
+#
+# %% dry-run
+# desc="Ne pas exécuter les commandes, seulement les afficher."
+# short="d" variable="dry_run" value=1 default=0
+#
+# %% connect
+# desc="Permet de choisir un fichier connect.php alternatif."
+# short="c" variable="connect" default="connect"
+#
+# %% tmp-dir
+# desc="Permet de choisir un répertoire tmp/ alternatif."
+# short="t" variable="tmp_dir" default="tmp"
+#
+# %% local-dir
+# desc="Permet de choisir un répertoire local/ alternatif."
+# short="l" variable="local_dir" default="local"
+#
 set -euo pipefail
 
-# Boîte à outils SPIP pour la ligne de commande.
-
-# Complète spip-cli, en ce s'occupant des choses hors de sa portée, comme les
-# permissions sur les dossiers.
-
 term_width=80
+
 script_dir="$(dirname "$(readlink -f "$0")")"
 
-# shellcheck source=lib/io.sh
-. "$script_dir/lib/io.sh"
-# shellcheck source=lib/wrappers.sh
-. "$script_dir/lib/wrappers.sh"
-# shellcheck source=lib/spip.sh
-. "$script_dir/lib/spip.sh"
+# charger les fichiers du dossier lib/
+# shellcheck source=/dev/null
+. <(cat "${script_dir}"/lib/*.sh)
 
 # commande par défaut
 if [[ -z "${1+x}" ]]; then
@@ -137,7 +152,6 @@ if [[ -f "${cmd_file:=${script_dir}/cmd/$cmd.sh}" ]]; then
     . "$cmd_file"
 else
     usage_error "$( printf "\
-
 %s
 
 Usage : %s
@@ -148,19 +162,11 @@ Commandes :
 
 Options :
 
-  --all | -a               Permet de vider aussi le cache de vignettes. Valable
-                           uniquement pour la commande cc.
-
-  --dry-run | -d           Ne pas exécuter les commandes, seulement les afficher.
-
-  --connect | -c STRING    Permet de choisir un fichier connect.php alternatif.
-
-  --tmp-dir | -t STRING    Permet de choisir un répertoire tmp/ alternatif.
-
-  --local-dir | -l STRING  Permet de choisir un répertoire local/ alternatif.
+%s
 " \
 "$(get_file_meta "${script_dir}/spipsh" "description" | fmt --width=${term_width})" \
 "$(get_file_meta "${script_dir}/spipsh" "usage")" \
 "$(get_commands_descriptions)" \
+"$(get_options_descriptions)" \
 )"
 fi
