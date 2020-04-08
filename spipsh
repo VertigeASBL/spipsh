@@ -1,4 +1,10 @@
 #!/bin/bash
+#
+# Description : Contrôle SPIP à la ligne de commande. Doit être exécuté depuis
+# la racine d'un site spip.
+#
+# Usage : spipsh [COMMAND]
+
 set -euo pipefail
 
 # Boîte à outils SPIP pour la ligne de commande.
@@ -137,9 +143,9 @@ if [[ -f "${cmd_file:=${script_dir}/cmd/$cmd.sh}" ]]; then
 else
     usage_error "$( printf "\
 
-Contrôle SPIP à la ligne de commande. Doit être exécuté depuis la racine d'un site spip.
+%s
 
-Usage : spipsh [COMMAND]
+Usage : %s
 
 Commandes :
 
@@ -157,5 +163,9 @@ Options :
   --tmp-dir | -t STRING    Permet de choisir un répertoire tmp/ alternatif.
 
   --local-dir | -l STRING  Permet de choisir un répertoire local/ alternatif.
-" "$(get_commands_descriptions)" )"
+" \
+"$(get_file_meta "${script_dir}/spipsh" "description" | fmt --width=${term_width})" \
+"$(get_file_meta "${script_dir}/spipsh" "usage")" \
+"$(get_commands_descriptions)" \
+)"
 fi

@@ -40,12 +40,18 @@ is_registered_command () {
 }
 
 get_command_meta () {
-    local cmd meta
 
-    cmd="$1"
+    get_file_meta "$script_dir/cmd/${1}.sh" "$2"
+}
+
+get_file_meta () {
+
+    local file meta
+
+    file="$1"
     meta="$2"
 
-    <"$script_dir/cmd/${cmd}.sh" awk -v meta="$meta" '
+    <"$file" awk -v meta="$meta" '
 BEGIN { stop=0; IGNORE_CASE=1 }
 
 ! /^#/ { stop=1 }
