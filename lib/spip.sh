@@ -43,11 +43,12 @@ _spip_get_env () {
     fi
 
     # charger les accès à la DB depuis config/connect.php
-    if [[ -f "config/${connect:=connect}.php" ]]; then
+    # shellcheck disable=2154
+    if [[ -f "config/${connect}.php" ]]; then
 
         # shellcheck disable=SC2034
         IFS=',' read -r db_host db_port db_user db_pwd db_name _ db_prefix _ <<< \
-             $( grep spip_connect_db "config/$connect.php"\
+             $( grep spip_connect_db "config/${connect}.php"\
                     | sed 's/^spip_connect_db(//'\
                     | sed -E "s/[^']*'([^']*)'?/\1,/g"\
                     | sed "s/);//"\
@@ -57,7 +58,7 @@ _spip_get_env () {
             db_port=3306; # use default
         fi;
     else
-        out_fatal_error "Le fichier config/$connect.php n'existe pas, est-ce que ce SPIP est bien installé ?";
+        out_fatal_error "Le fichier config/${connect}.php n'existe pas, est-ce que ce SPIP est bien installé ?";
     fi
 
     # charger les accès au ftp de prod depuis la config de git

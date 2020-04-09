@@ -49,7 +49,7 @@ _opt_expand_short_opts () {
 }
 
 opt_parse () {
-    local opt opt_short opt_variable opt_value opt_found
+    local opt opt_short opt_variable opt_value opt_found opt_default
 
     # shellcheck disable=SC2068,SC2046
     set -- $(_opt_expand_short_opts $@)
@@ -98,5 +98,14 @@ opt_parse () {
             fi
         fi
         shift;
+    done
+
+    # initialiser valeurs par défaut si nécessaire
+    for opt_name in $(_opt_get_all); do
+        opt_variable=$(_opt_get_param "$opt_name" "variable")
+        opt_default=$(_opt_get_param "$opt_name" "default")
+        if [[ -n "${opt_default}" ]] && [[ -z "${!opt_variable+x}" ]]; then
+            declare -g "$opt_variable=$opt_default"
+        fi
     done
 }

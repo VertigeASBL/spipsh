@@ -9,11 +9,13 @@ if [[ ! -f "$file" ]] || [[ ! "$file" =~ /spipsh$ ]]; then
     exit 2;
 fi
 
+# shellcheck disable=2154
 out_exec "vide le cache"\
-            rm -rf ${tmp_dir:-tmp}/{cache,plugin_xml_cache.gz,meta_cache.php,menu-rubriques-cache.txt} \&\&\
-            rm -rf ${local_dir:-local}/{cache-css,cache-js}
+            rm -rf "${tmp_dir}"/{cache,plugin_xml_cache.gz,meta_cache.php,menu-rubriques-cache.txt} \&\&\
+            rm -rf "${local_dir}"/{cache-css,cache-js}
 
+# shellcheck disable=2154
 if [[ -n ${all+x} ]] ; then
     out_exec "vide le cache des vignettes"\
-                rm -rf ${local_dir:-local}/*;
+                rm -rf "${local_dir}"/*;
 fi
