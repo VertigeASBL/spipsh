@@ -49,6 +49,7 @@ _opt_expand_short_opts () {
 }
 
 opt_parse () {
+    local opt opt_short opt_variable opt_value opt_found
 
     # shellcheck disable=SC2068,SC2046
     set -- $(_opt_expand_short_opts $@)
@@ -81,59 +82,35 @@ opt_parse () {
         else
             spipsh_opts="$spipsh_opts $1";
             opt="$1"
-            case $opt in
-                -a | --all)
-                    # utilisé par la commande cc
-                    # shellcheck disable=SC2034
-                    all=1;
-                    ;;
-                -d | --dry-run)
-                    # shellcheck disable=SC2034
-                    dry_run=1;
-                    ;;
-                -t | --tmp-dir)
-                    shift;
+            opt_found=0
+
+            for opt_name in $(_opt_get_all); do
+                opt_short=$(_opt_get_param "$opt_name" "short")
+                opt_variable=$(_opt_get_param "$opt_name" "variable")
+                opt_value=$(_opt_get_param "$opt_name" "value")
+
+                if [[ ! "$opt" == "-$opt_short" ]] && [[ ! "$opt" == "--$opt_name" ]]; then
+                    continue;
+                fi
+
+                opt_found=1
+                if [[ -n "$opt_value" ]]; then
+                    declare -g "$opt_variable=$opt_value"
+                else
+                    shift
                     if [[ -z "${1+x}" ]]; then
-                        out_usage_error "L'option $opt nécessite un nom de dossier en argument."
+                        out_usage_error "L'option $opt nécessite un argument."
                     fi
+                    declare -g "$opt_variable=$1"
+                    spipsh_opts="$spipsh_opts $1"
+                fi
 
-                    tmp_dir="$1";
+                break;
+            done
 
-                    if [[ ! -d "$tmp_dir" ]]; then
-                        out_usage_error "$tmp_dir n'est pas un répertoire."
-                    fi
-                    spipsh_opts="$spipsh_opts $1";
-                    ;;
-                -l | --local-dir)
-                    shift;
-                    if [[ -z "${1+x}" ]]; then
-                        out_usage_error "L'option $opt nécessite un nom de dossier en argument."
-                    fi
-
-                    local_dir="$1";
-
-                    if [[ ! -d "$local_dir" ]]; then
-                        out_usage_error "$local_dir n'est pas un répertoire."
-                    fi
-                    spipsh_opts="$spipsh_opts $1";
-                    ;;
-                -c | --connect)
-                    shift;
-                    if [[ -z "${1+x}" ]]; then
-                        out_usage_error "L'option $opt nécessite un nom de fichier en argument."
-                    fi
-
-                    connect="$1";
-
-                    if [[ ! -f "config/${connect}.php" ]]; then
-                        out_usage_error "config/${connect}.php n'est pas un fichier."
-                    fi
-                    spipsh_opts="$spipsh_opts $1";
-                    ;;
-                *)
-                    out_usage_error "option invalide : $1"
-                    ;;
-            esac
+            if [[ $opt_found -eq 0 ]]; then
+                out_usage_error "option invalide : $opt"
+            fi
         fi
         shift;
     done
