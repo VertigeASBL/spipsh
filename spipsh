@@ -38,112 +38,13 @@ script_dir="$(dirname "$(readlink -f "$0")")"
 # shellcheck source=/dev/null
 . <(cat "${script_dir}"/lib/*.sh)
 
+# shellcheck disable=SC2068
+opt_parse $@
+
 # commande par défaut
 if [[ -z "${1+x}" ]]; then
     cmd="help";
 fi
-
-# pré-processing des arguments abrégés '-dat' -> '-d -a -t'
-args=()
-while [[ -n ${1+x} ]]; do
-    if [[ "$1" =~ ^-[adtlc]+ ]]; then
-        for (( i=0; i<${#1}; i++ )); do
-            char=${1:$i:1}
-            if [[ $char != '-' ]]; then
-                args+=("-$char")
-            fi
-        done
-    else
-        args+=("$1")
-    fi
-    shift;
-done
-set -- "${args[@]}"
-
-# parser et valider les arguments
-spipsh_opts="";
-while [[ -n "${1+x}" ]]; do
-    if [[ ! "$1" =~ ^- ]]; then
-        if [[ -z ${cmd+x} ]]; then
-            cmd="$1";
-        else
-            case $cmd in
-                db-query)
-                    # utilisé par la commande db-query
-                    # shellcheck disable=SC2034
-                    db_query="$1";
-                    ;;
-                db-import)
-                    # utilisé par la commande db-dump
-                    # shellcheck disable=SC2034
-                    db_dump="$1";
-                    ;;
-                run-script)
-                    # utilisé par la commande run-script
-                    # shellcheck disable=SC2034
-                    script="$1";
-                    ;;
-            esac
-        fi
-    else
-        spipsh_opts="$spipsh_opts $1";
-        opt="$1"
-        case $opt in
-            -a | --all)
-                # utilisé par la commande cc
-                # shellcheck disable=SC2034
-                all=1;
-                ;;
-            -d | --dry-run)
-                # shellcheck disable=SC2034
-                dry_run=1;
-                ;;
-            -t | --tmp-dir)
-                shift;
-                if [[ -z "${1+x}" ]]; then
-                    out_usage_error "L'option $opt nécessite un nom de dossier en argument."
-                fi
-
-                tmp_dir="$1";
-
-                if [[ ! -d "$tmp_dir" ]]; then
-                    out_usage_error "$tmp_dir n'est pas un répertoire."
-                fi
-                spipsh_opts="$spipsh_opts $1";
-                ;;
-            -l | --local-dir)
-                shift;
-                if [[ -z "${1+x}" ]]; then
-                    out_usage_error "L'option $opt nécessite un nom de dossier en argument."
-                fi
-
-                local_dir="$1";
-
-                if [[ ! -d "$local_dir" ]]; then
-                    out_usage_error "$local_dir n'est pas un répertoire."
-                fi
-                spipsh_opts="$spipsh_opts $1";
-                ;;
-            -c | --connect)
-                shift;
-                if [[ -z "${1+x}" ]]; then
-                    out_usage_error "L'option $opt nécessite un nom de fichier en argument."
-                fi
-
-                connect="$1";
-
-                if [[ ! -f "config/${connect}.php" ]]; then
-                    out_usage_error "config/${connect}.php n'est pas un fichier."
-                fi
-                spipsh_opts="$spipsh_opts $1";
-                ;;
-            *)
-                out_usage_error "option invalide : $1"
-                ;;
-        esac
-    fi
-    shift;
-done
 
 if _cmds_is_registered "$cmd" && [[ $( _meta_command_get "$cmd" "env" ) == 'spip' ]]; then
     _spip_get_env;
