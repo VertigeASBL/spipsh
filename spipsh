@@ -41,6 +41,22 @@ script_dir="$(dirname "$(readlink -f "$0")")"
 # shellcheck disable=SC2068
 opt_parse $@
 
+# shellcheck disable=2154
+if [[ ! -f "config/$connect.php" ]]; then
+    out_usage_error "config/$connect.php n'est pas un fichier."
+fi
+
+# shellcheck disable=2154
+if [[ ! -d "$tmp_dir" ]]; then
+    out_usage_error "$tmp_dir n'est pas un dossier."
+fi
+
+# shellcheck disable=2154
+if [[ ! -d "$local_dir" ]]; then
+    out_usage_error "$local_dir n'est pas un dossier."
+fi
+
+
 # commande par défaut
 if [[ -z "${1+x}" ]]; then
     cmd="help";
