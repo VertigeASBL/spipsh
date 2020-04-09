@@ -41,6 +41,9 @@ script_dir="$(dirname "$(readlink -f "$0")")"
 # shellcheck disable=SC2068
 opt_parse $@
 
+
+
+
 # shellcheck disable=2154
 if [[ ! -f "config/$connect.php" ]]; then
     out_usage_error "config/$connect.php n'est pas un fichier."
@@ -57,8 +60,10 @@ if [[ ! -d "$local_dir" ]]; then
 fi
 
 
+
+
 # commande par défaut
-if [[ -z "${1+x}" ]]; then
+if [[ -z "${cmd+x}" ]]; then
     cmd="help";
 fi
 
@@ -69,6 +74,8 @@ fi;
 if [[ -f "${cmd_file:=${script_dir}/cmd/$cmd.sh}" ]]; then
     # shellcheck source=/dev/null
     . "$cmd_file"
-else
+elif [[ "$cmd" == "help" ]]; then
     _help_print
+else
+    out_usage_error "Commande invalide : $cmd"
 fi
