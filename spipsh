@@ -29,10 +29,11 @@
 #
 set -euo pipefail
 
-# shellcheck source=init_script.sh
-. "$(dirname "$(readlink -f "$0")")"/init_script.sh
+# shellcheck source=vendor/bash-args/init_script.sh
+. "$(dirname "$(readlink -f "$0")")"/vendor/bash-args/init_script.sh
 
-
+# shellcheck source=lib/spip.sh
+. "${script_dir}"/lib/spip.sh
 
 
 # shellcheck disable=2154

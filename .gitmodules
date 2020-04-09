@@ -1,0 +1,3 @@
+[submodule "vendor/bash-args"]
+	path = vendor/bash-args
+	url = git@gitlab.com:bystrano/bash-args.git
