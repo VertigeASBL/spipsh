@@ -29,17 +29,8 @@
 #
 set -euo pipefail
 
-# shellcheck disable=SC2034
-term_width=80
-
-script_dir="$(dirname "$(readlink -f "$0")")"
-
-# charger les fichiers du dossier lib/
-# shellcheck source=/dev/null
-. <(cat "${script_dir}"/lib/*.sh)
-
-# shellcheck disable=SC2068
-opt_parse $@
+# shellcheck source=init_script.sh
+. "$(dirname "$(readlink -f "$0")")"/init_script.sh
 
 
 

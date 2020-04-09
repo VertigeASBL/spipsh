@@ -17,8 +17,8 @@ Options :
 
 %s
 " \
-"$(_meta_get "${script_dir}/spipsh" "description" | fmt --width="${term_width}")" \
-"$(_meta_get "${script_dir}/spipsh" "usage")" \
+"$(_meta_get "${script_dir}/${script_file}" "description" | fmt --width="${term_width}")" \
+"$(_meta_get "${script_dir}/${script_file}" "usage")" \
 "$(_help_commands)" \
 "$(_help_options)"
 }
