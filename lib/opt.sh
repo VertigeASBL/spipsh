@@ -56,28 +56,13 @@ opt_parse () {
 
     # parser et valider les arguments
     spipsh_opts="";
+    cmd_args=()
     while [[ -n "${1+x}" ]]; do
         if [[ ! "$1" =~ ^- ]]; then
             if [[ -z ${cmd+x} ]]; then
                 cmd="$1";
             else
-                case $cmd in
-                    db-query)
-                        # utilisé par la commande db-query
-                        # shellcheck disable=SC2034
-                        db_query="$1";
-                        ;;
-                    db-import)
-                        # utilisé par la commande db-dump
-                        # shellcheck disable=SC2034
-                        db_dump="$1";
-                        ;;
-                    run-script)
-                        # utilisé par la commande run-script
-                        # shellcheck disable=SC2034
-                        script="$1";
-                        ;;
-                esac
+                cmd_args+=("$1")
             fi
         else
             spipsh_opts="$spipsh_opts $1";

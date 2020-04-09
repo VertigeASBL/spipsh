@@ -12,7 +12,10 @@ if [[ ! -f "$file" ]] || [[ ! "$file" =~ /spipsh$ ]]; then
     exit 2;
 fi
 
-if [[ -z "${script+x}" ]]; then
+# shellcheck disable=SC2154
+script="${cmd_args[*]}"
+
+if [[ -z "${script}" ]]; then
     out_usage_error "Vous devez spécifier le nom d'un script.";
 else
     # shellcheck source=/dev/null
