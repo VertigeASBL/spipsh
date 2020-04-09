@@ -29,6 +29,7 @@
 #
 set -euo pipefail
 
+# shellcheck disable=SC2034
 term_width=80
 
 script_dir="$(dirname "$(readlink -f "$0")")"
@@ -94,6 +95,7 @@ while [[ -n "${1+x}" ]]; do
                 all=1;
                 ;;
             -d | --dry-run)
+                # shellcheck disable=SC2034
                 dry_run=1;
                 ;;
             -t | --tmp-dir)
