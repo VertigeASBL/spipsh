@@ -12,7 +12,7 @@ fi
 util_bin_ok "zcat"
 
 # shellcheck disable=SC2154
-db_dump="${cmd_args[*]}"
+db_dump="${CMD_ARGS[*]}"
 
 if [[ -z "$db_dump" ]]; then
     out_usage_error "Vous devez spécifier un dump sql.gz à importer";

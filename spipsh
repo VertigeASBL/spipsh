@@ -33,7 +33,7 @@ set -euo pipefail
 . "$(dirname "$(readlink -f "$0")")"/vendor/bash-args/init_script.sh
 
 # shellcheck source=lib/spip.sh
-. "${script_dir}"/lib/spip.sh
+. "${SCRIPT_DIR}"/lib/spip.sh
 
 
 # shellcheck disable=2154
@@ -55,19 +55,19 @@ fi
 
 
 # commande par défaut
-if [[ -z "${cmd+x}" ]]; then
-    cmd="help";
+if [[ -z "${CMD+x}" ]]; then
+    CMD="help";
 fi
 
-if _cmds_is_registered "$cmd" && [[ $( _meta_command_get "$cmd" "env" ) == 'spip' ]]; then
+if _cmds_is_registered "$CMD" && [[ $( _meta_command_get "$CMD" "env" ) == 'spip' ]]; then
     _spip_get_env;
 fi;
 
-if [[ -f "${cmd_file:=${script_dir}/cmd/$cmd.sh}" ]]; then
+if [[ -f "${cmd_file:=${SCRIPT_DIR}/cmd/$CMD.sh}" ]]; then
     # shellcheck source=/dev/null
     . "$cmd_file"
-elif [[ "$cmd" == "help" ]]; then
+elif [[ "$CMD" == "help" ]]; then
     _help_print
 else
-    out_usage_error "Commande invalide : $cmd"
+    out_usage_error "Commande invalide : $CMD"
 fi

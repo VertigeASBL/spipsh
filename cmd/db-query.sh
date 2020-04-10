@@ -11,7 +11,7 @@ fi
 
 
 # shellcheck disable=SC2154
-db_query="${cmd_args[*]}"
+db_query="${CMD_ARGS[*]}"
 
 if [[ -z "$db_query" ]]; then
     out_usage_error "Vous devez spécifier une commande à exécuter.";
