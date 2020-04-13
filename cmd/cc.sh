@@ -15,7 +15,7 @@ out_exec "vide le cache"\
             rm -rf "${local_dir}"/{cache-css,cache-js}
 
 # shellcheck disable=2154
-if [[ -n ${all+x} ]] ; then
+if [[ $all -eq 1 ]] ; then
     out_exec "vide le cache des vignettes"\
                 rm -rf "${local_dir}"/*;
 fi
