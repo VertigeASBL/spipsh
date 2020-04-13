@@ -1,5 +1,5 @@
 #!/bin/bash
-# Description : Crée les dossiers de plugins et de libraires, puis donne les permissions adequates.
+# Summary : Crée les dossiers de plugins et de libraires, puis donne les permissions adequates.
 # Env : spip
 set -euo pipefail
 

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Description : Ouvre un shell sur le serveur de prod via ssh.
+# Summary : Ouvre un shell sur le serveur de prod via ssh.
 # Env : spip
 set -euo pipefail
 

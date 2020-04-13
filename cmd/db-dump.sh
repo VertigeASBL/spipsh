@@ -1,5 +1,5 @@
 #!/bin/bash
-# Description : Dump la db dans stdout.
+# Summary : Dump la db dans stdout.
 # Env : spip
 set -euo pipefail
 

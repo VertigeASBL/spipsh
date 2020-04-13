@@ -1,5 +1,5 @@
 #!/bin/bash
-# Description : Exécute une commande MySQL.
+# Summary : Exécute une commande MySQL.
 # Env : spip
 set -euo pipefail
 

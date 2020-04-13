@@ -1,5 +1,5 @@
 #!/bin/bash
-# Description : Lance un script bash en lui passant les variables
+# Summary : Lance un script bash en lui passant les variables
 # d'environnement qui vont bien. On passe l'adresse du script relativement au
 # dossier bin/ situé à la racine du SPIP.
 #

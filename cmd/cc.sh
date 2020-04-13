@@ -1,5 +1,5 @@
 #!/bin/bash
-# Description : Vide les caches du dossier tmp, à la dure, sans passer par SPIP.
+# Summary : Vide les caches du dossier tmp, à la dure, sans passer par SPIP.
 # Env : spip
 set -euo pipefail
 

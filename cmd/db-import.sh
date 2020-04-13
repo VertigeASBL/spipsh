@@ -1,5 +1,5 @@
 #!/bin/bash
-# Description : Importe un dump au format sql.gz dans la base de données MySQL.
+# Summary : Importe un dump au format sql.gz dans la base de données MySQL.
 # Env : spip
 set -euo pipefail
 

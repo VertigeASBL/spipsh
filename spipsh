@@ -7,25 +7,25 @@
 #
 # Options :
 #
-# %% all
+# % all
 # desc="Permet de vider aussi le cache des vignettes. Valable uniquement pour la commande cc."
-# short="a" variable="all" value="1" default=0
+# short="a" type="flag" variable="all" value="1" default=0
 #
-# %% dry-run
+# % dry-run
 # desc="Ne pas exécuter les commandes, seulement les afficher."
-# short="d" variable="dry_run" value=1 default=0
+# short="d" type="flag" variable="dry_run" value=1 default=0
 #
-# %% connect
+# % connect
 # desc="Permet de choisir un fichier connect.php alternatif."
-# short="c" variable="connect" default="connect"
+# short="c" type="option" variable="connect" default="connect"
 #
-# %% tmp-dir
+# % tmp-dir
 # desc="Permet de choisir un répertoire tmp/ alternatif."
-# short="t" variable="tmp_dir" default="tmp"
+# short="t" type="option" variable="tmp_dir" default="tmp"
 #
-# %% local-dir
+# % local-dir
 # desc="Permet de choisir un répertoire local/ alternatif."
-# short="l" variable="local_dir" default="local"
+# short="l" type="option" variable="local_dir" default="local"
 #
 set -euo pipefail
 
