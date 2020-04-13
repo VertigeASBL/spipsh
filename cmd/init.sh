@@ -3,12 +3,6 @@
 # Env : spip
 set -euo pipefail
 
-read -r _ file < <(caller)
-if [[ ! -f "$file" ]] || [[ ! "$file" =~ /spipsh$ ]]; then
-    echo "Ce script doit être appelé par spipsh." 1>&2;
-    exit 2;
-fi
-
 # Les dossiers qui doivent exister pour que SPIP fonctionne sans embrouilles
 needed_dirs="config IMG local lib tmp plugins plugins/auto plugins/fabrique_auto squelettes"
 

@@ -3,12 +3,6 @@
 # Env : spip
 set -euo pipefail
 
-read -r _ file < <(caller)
-if [[ ! -f "$file" ]] || [[ ! "$file" =~ /spipsh$ ]]; then
-    echo "Ce script doit être appelé par spipsh." 1>&2;
-    exit 2;
-fi
-
 
 # shellcheck disable=SC2154
 db_query="${CMD_ARGS[*]}"
