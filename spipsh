@@ -52,22 +52,9 @@ if [[ ! -d "$local_dir" ]]; then
 fi
 
 
-
-
-# commande par défaut
-if [[ -z "${CMD+x}" ]]; then
-    CMD="help";
-fi
-
 if _cmds_is_registered "$CMD" && [[ $( _meta_command_get "$CMD" "env" ) == 'spip' ]]; then
     _spip_get_env;
 fi;
 
-if [[ -f "${cmd_file:=${SCRIPT_DIR}/cmd/$CMD.sh}" ]]; then
-    # shellcheck source=/dev/null
-    . "$cmd_file"
-elif [[ "$CMD" == "help" ]]; then
-    _help_print
-else
-    out_usage_error "Commande invalide : $CMD"
-fi
+
+cmds_do_subcommand
