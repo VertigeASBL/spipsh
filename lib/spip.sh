@@ -74,7 +74,7 @@ _spip_get_env () {
 }
 
 util_bin_ok () {
-    if [[ ! -x $(which "$1") ]]; then
+    if [[ ! -x $(command -v "$1") ]]; then
         out_fatal_error "Le programme $1 n'est pas installé.";
     fi
 }
