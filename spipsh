@@ -7,10 +7,6 @@
 #
 # Options :
 #
-# % all
-# desc="Permet de vider aussi le cache des vignettes. Valable uniquement pour la commande cc."
-# short="a" type="flag" variable="all" value="1" default=0
-#
 # % dry-run
 # desc="Ne pas exécuter les commandes, seulement les afficher."
 # short="d" type="flag" variable="dry_run" value=1 default=0
@@ -18,14 +14,6 @@
 # % connect
 # desc="Permet de choisir un fichier connect.php alternatif."
 # short="c" type="option" variable="connect" default="connect"
-#
-# % tmp-dir
-# desc="Permet de choisir un répertoire tmp/ alternatif."
-# short="t" type="option" variable="tmp_dir" default="tmp"
-#
-# % local-dir
-# desc="Permet de choisir un répertoire local/ alternatif."
-# short="l" type="option" variable="local_dir" default="local"
 #
 set -euo pipefail
 
@@ -41,18 +29,8 @@ if [[ ! -f "config/$connect.php" ]]; then
     out_usage_error "config/$connect.php n'est pas un fichier."
 fi
 
-# shellcheck disable=2154
-if [[ ! -d "$tmp_dir" ]]; then
-    out_usage_error "$tmp_dir n'est pas un dossier."
-fi
 
-# shellcheck disable=2154
-if [[ ! -d "$local_dir" ]]; then
-    out_usage_error "$local_dir n'est pas un dossier."
-fi
-
-
-if _cmds_is_registered "$CMD" && [[ $( _meta_command_get "$CMD" "env" ) == 'spip' ]]; then
+if [[ -f "${SCRIPT_DIR}/${CMDS_DIR}/${CMD-}.sh" ]] && [[ $( _meta_get "env" "$CMD") == 'spip' ]]; then
     _spip_get_env;
 fi;
 
