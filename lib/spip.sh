@@ -46,7 +46,7 @@ _spip_get_env () {
     # shellcheck disable=2154
     if [[ -f "config/${connect}.php" ]]; then
 
-        # shellcheck disable=SC2034
+        # shellcheck disable=SC2034,2046,2026
         IFS=',' read -r db_host db_port db_user db_pwd db_name _ db_prefix _ <<< \
              $( grep spip_connect_db "config/${connect}.php"\
                     | sed 's/^spip_connect_db(//'\

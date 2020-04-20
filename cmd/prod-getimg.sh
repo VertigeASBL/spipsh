@@ -5,5 +5,6 @@ set -euo pipefail
 
 util_bin_ok "lftp"
 
+# shellcheck disable=2154,2016
 out_exec "rapatrier les images et documents du serveur de production"\
-            lftp -u "$ftp_user",'"$ftp_pwd"' "$ftp_url" -e "mirror IMG/ ./IMG/ ; exit";
+         lftp -u "$ftp_user",'"$ftp_pwd"' "$ftp_url" -e "mirror IMG/ ./IMG/ ; exit";

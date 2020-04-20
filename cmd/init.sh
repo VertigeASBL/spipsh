@@ -12,9 +12,9 @@ writeable_dirs="config IMG local lib tmp plugins/auto plugins/fabrique_auto"
 for dir in $needed_dirs; do
     if [[ ! -d $dir ]]; then
         out_exec "crée le dossier $dir"\
-                    mkdir "$dir";
+                 mkdir "$dir";
     fi
 done
 
 out_exec "répare les permissions"\
-            chmod -R a+rwX "$writeable_dirs";
+         chmod -R a+rwX "$writeable_dirs";

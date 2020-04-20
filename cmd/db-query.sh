@@ -5,7 +5,7 @@ set -euo pipefail
 
 
 # shellcheck disable=SC2154
-db_query="${CMD_ARGS[*]}"
+db_query="${CMD_ARGS[0]}"
 
 if [[ -z "$db_query" ]]; then
     out_usage_error "Vous devez spécifier une commande à exécuter.";

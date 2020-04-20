@@ -1,6 +1,5 @@
 #!/bin/bash
-#
-# Description : Contrôle SPIP à la ligne de commande. Doit être exécuté depuis
+# Summary : Contrôle SPIP à la ligne de commande. Doit être exécuté depuis
 # la racine d'un site spip.
 #
 # Usage : spipsh [COMMAND]
@@ -17,6 +16,20 @@
 #
 set -euo pipefail
 
+_complete_sql_dump () {
+
+    while read -r file; do
+        COMP_REPLIES+=("$file")
+    done < <(find "$(dirname "${1-}")" -name '*.sql.gz')
+}
+
+_complete_spipsh_script () {
+
+    while read -r file; do
+        COMP_REPLIES+=("$(basename "$file")")
+    done < <(find ./bin/ -type f -executable)
+}
+
 # shellcheck source=vendor/bash-args/init_script.sh
 . "$(dirname "$(readlink -f "$0")")"/vendor/bash-args/init_script.sh
 
@@ -24,13 +37,11 @@ set -euo pipefail
 . "${SCRIPT_DIR}"/lib/spip.sh
 
 
-# shellcheck disable=2154
-if [[ ! -f "config/$connect.php" ]]; then
-    out_usage_error "config/$connect.php n'est pas un fichier."
-fi
-
-
 if [[ -f "${SCRIPT_DIR}/${CMDS_DIR}/${CMD-}.sh" ]] && [[ $( _meta_get "env" "$CMD") == 'spip' ]]; then
+    if [[ ! -f "config/$connect.php" ]]; then
+        out_usage_error "config/$connect.php n'est pas un fichier. Est-on à la racine d'un site SPIP ?"
+    fi
+
     _spip_get_env;
 fi;
 

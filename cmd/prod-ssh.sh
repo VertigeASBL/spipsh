@@ -5,4 +5,5 @@ set -euo pipefail
 
 util_bin_ok "ssh";
 
+# shellcheck disable=2154
 ssh "$ssh_user"@"$prod_host";
