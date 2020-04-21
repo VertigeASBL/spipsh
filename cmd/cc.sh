@@ -11,11 +11,11 @@
 #
 # % tmp-dir
 # desc="Permet de choisir un répertoire tmp/ alternatif."
-# short="t" type="option" variable="tmp_dir" default="tmp" argument_complete=directory
+# short="t" type="option" variable="tmp_dir" default="tmp" argument=directory
 #
 # % local-dir
 # desc="Permet de choisir un répertoire local/ alternatif."
-# short="l" type="option" variable="local_dir" default="local" argument_complete=directory
+# short="l" type="option" variable="local_dir" default="local" argument=directory
 #
 set -euo pipefail
 

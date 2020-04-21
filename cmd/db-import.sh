@@ -1,7 +1,7 @@
 #!/bin/bash
 # Summary : Importe un dump au format sql.gz dans la base de données MySQL.
 # Env : spip
-# Argument complete : sql_dump
+# Argument : sql_dump
 set -euo pipefail
 
 util_bin_ok "zcat"

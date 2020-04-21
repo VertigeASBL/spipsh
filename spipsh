@@ -30,8 +30,8 @@ _complete_spipsh_script () {
     done < <(find ./bin/ -type f -executable)
 }
 
-# shellcheck source=vendor/bash-args/init_script.sh
-. "$(dirname "$(readlink -f "$0")")"/vendor/bash-args/init_script.sh
+# shellcheck source=vendor/bash-args/init.sh
+. "$(dirname "$(readlink -f "$0")")"/vendor/bash-args/init.sh
 
 # shellcheck source=lib/spip.sh
 . "${SCRIPT_DIR}"/lib/spip.sh

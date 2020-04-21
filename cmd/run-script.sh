@@ -5,7 +5,7 @@
 # dossier bin/ situé à la racine du SPIP.
 #
 # Env : spip
-# Argument complete : spipsh_script
+# Argument : spipsh_script
 #
 set -euo pipefail
 
