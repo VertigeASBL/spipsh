@@ -37,7 +37,7 @@ _complete_spipsh_script () {
 . "${SCRIPT_DIR}"/lib/spip.sh
 
 
-if [[ -f "${SCRIPT_DIR}/${CMDS_DIR}/${CMD-}.sh" ]] && [[ $( _meta_get "env" "$CMD") == 'spip' ]]; then
+if [[ -f "${SCRIPT_DIR}/${CMDS_DIR}/${CMD-}.sh" ]] && [[ $( meta_get "env" "$CMD") == 'spip' ]]; then
     if [[ ! -f "config/$connect.php" ]]; then
         out_usage_error "config/$connect.php n'est pas un fichier. Est-on à la racine d'un site SPIP ?"
     fi
@@ -46,4 +46,4 @@ if [[ -f "${SCRIPT_DIR}/${CMDS_DIR}/${CMD-}.sh" ]] && [[ $( _meta_get "env" "$CM
 fi;
 
 
-cmds_do_subcommand
+cmd_run

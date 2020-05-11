@@ -12,4 +12,4 @@
 #                                                                              #
 ################################################################################
 
-eval "$(spipsh _register_autocomplete)"
+eval "$(spipsh _register_completion)"
