@@ -5,4 +5,4 @@ set -euo pipefail
 
 util_bin_ok "wget"
 
-wget --output-document=config/ecran_securite.php https://zone.spip.org/trac/spip-zone/browser/_core_/securite/ecran_securite.php?format=txt
+wget --output-document=config/ecran_securite.php https://git.spip.net/spip-contrib-outils/securite/raw/branch/master/ecran_securite.php
